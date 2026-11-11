@@ -1,0 +1,1907 @@
+<!DOCTYPE html>
+<html lang="es" class="h-full">
+<head>
+    <meta charset="UTF-8">
+    <!-- Meta viewport optimizado para evitar zoom en iOS y forzar escala táctil 1:1 -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Carrera Pastoral - Fichaje Estelar</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts: Inter & Teko -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Teko:wght@500;600;700&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        teko: ['Teko', 'sans-serif'],
+                    },
+                }
+            }
+        }
+    </script>
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        .font-teko { font-family: 'Teko', sans-serif; }
+        .glass-card {
+            background: rgba(15, 23, 42, 0.90);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 1rem;
+        }
+        .glow-emerald {
+            box-shadow: 0 0 25px rgba(16, 185, 129, 0.3);
+        }
+        .glow-rose {
+            box-shadow: 0 0 25px rgba(244, 63, 94, 0.4);
+        }
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: #0f172a; }
+        ::-webkit-scrollbar-thumb { background: #334155; border-radius: 3px; }
+        ::-webkit-scrollbar-thumb:hover { background: #475569; }
+    </style>
+</head>
+<body class="bg-slate-950 text-slate-100 min-h-full flex flex-col selection:bg-emerald-500 selection:text-slate-950">
+
+    <!-- HEADER / BARRA SUPERIOR -->
+    <header class="bg-slate-900/90 border-b border-slate-800 sticky top-0 z-50 px-4 py-3 flex items-center justify-between">
+        <div class="flex items-center gap-3">
+            <span class="text-2xl">⭐</span>
+            <div>
+                <h1 class="font-teko text-2xl tracking-wide uppercase text-emerald-400 leading-none">Carrera Pastoral</h1>
+                <p class="text-xs text-slate-400 hidden sm:block">Fichaje Estelar & Trayectoria Lasallista</p>
+            </div>
+        </div>
+        <div id="header-stats" class="hidden md:flex items-center gap-4 bg-slate-950/60 px-4 py-1.5 rounded-full border border-slate-800 text-xs font-mono">
+            <div>Jugador: <span id="header-player" class="text-emerald-400 font-bold">-</span></div>
+            <div>•</div>
+            <div>OVR Global: <span id="header-ovr" class="text-amber-400 font-bold">50</span></div>
+            <div>•</div>
+            <div>🏆 Logros: <span id="header-trophies" class="text-amber-300 font-bold">0</span></div>
+        </div>
+    </header>
+
+    <!-- CONTENEDOR PRINCIPAL -->
+    <main class="flex-grow flex items-center justify-center p-4 md:p-6">
+
+        <!-- PASO 1: NOMBRE DEL JUGADOR -->
+        <section id="screen-step1" class="w-full max-w-md glass-card p-8 glow-emerald text-center">
+            <div class="w-16 h-16 bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 rounded-full flex items-center justify-center mx-auto mb-6 text-3xl">
+                👤
+            </div>
+            <h2 class="text-3xl font-teko uppercase text-white mb-2">Inicia tu Trayectoria</h2>
+            <p class="text-sm text-slate-400 mb-6">Ingresa tu nombre para registrar tu fichaje estelar en el movimiento lasallista.</p>
+            
+            <div class="space-y-4 text-left">
+                <div>
+                    <label class="block text-xs uppercase font-bold tracking-wider text-slate-400 mb-2">Nombre del Animador</label>
+                    <input type="text" id="input-player-name" placeholder="Escribe tu nombre" 
+                        class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 text-white text-base focus:outline-none focus:border-emerald-500 font-medium">
+                    <span id="db-load-status-home" class="text-xs text-emerald-400 font-mono mt-2 block text-center">Cargando sistema lasallista...</span>
+                </div>
+
+                <button onclick="goToStep2()" class="w-full py-3.5 bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold rounded-xl transition-all shadow-lg shadow-emerald-500/20 uppercase tracking-wider text-sm mt-4">
+                    Continuar al Diseño de Camiseta ➔
+                </button>
+            </div>
+        </section>
+
+        <!-- PASO 2: DISEÑO DE CAMISETA -->
+        <section id="screen-step2" class="w-full max-w-4xl glass-card p-4 sm:p-6 md:p-8 hidden">
+            <div class="text-center mb-6">
+                <h2 class="text-3xl font-teko uppercase text-white">Diseña tu Camiseta Oficial</h2>
+                <p class="text-sm text-slate-400">Personaliza la indumentaria y confirma tu Centro de Proyección para esta etapa.</p>
+            </div>
+
+            <!-- CASILLA DE ELECCIÓN / ASIGNACIÓN DE CENTRO DE PROYECCIÓN -->
+            <div class="bg-slate-900/90 border border-slate-800 rounded-2xl p-5 mb-6">
+                <div class="flex flex-wrap items-center justify-between gap-3 border-b border-slate-800 pb-3 mb-4">
+                    <div>
+                        <span id="jersey-stage-title" class="text-xs uppercase font-bold text-emerald-400 tracking-wider">Etapa Actual</span>
+                        <h3 id="jersey-stage-name" class="text-xl font-teko text-white">Torre (Grado 8°)</h3>
+                    </div>
+                    <div id="center-mode-badge" class="bg-amber-950 text-amber-400 border border-amber-800 px-3 py-1 rounded-full text-xs font-mono font-bold">
+                        🎲 Asignación Aleatoria (Etapa Escolar)
+                    </div>
+                </div>
+
+                <!-- Vista de Centro Asignado Aleatoriamente -->
+                <div id="center-random-display" class="flex items-center gap-4 bg-slate-950 p-4 rounded-xl border border-slate-800">
+                    <div id="random-center-emoji" class="text-4xl">🌟</div>
+                    <div>
+                        <div class="flex items-center gap-2">
+                            <span class="text-xs uppercase font-bold text-slate-400">Centro Asignado:</span>
+                            <span id="random-center-name" class="text-lg font-teko text-emerald-400 font-bold">Centro Sigma</span>
+                        </div>
+                        <p id="random-center-desc" class="text-xs text-slate-300">Centro principal de formación y liderazgo lasallista.</p>
+                    </div>
+                </div>
+
+                <!-- Selección Libre de Centro (Lazo 1 a 10) -->
+                <div id="center-selector-container" class="hidden space-y-2">
+                    <label class="block text-xs uppercase font-bold text-slate-300">Selecciona tu Centro de Proyección (Libre Elección - Lazo)</label>
+                    <div class="flex flex-col sm:flex-row items-center gap-3">
+                        <select id="select-center-dropdown" onchange="onCenterDropdownChange(this.value)" class="w-full sm:w-1/2 bg-slate-950 border border-slate-700 rounded-xl px-4 py-3 text-white font-medium focus:outline-none focus:border-emerald-500 text-sm">
+                            <option value="sigma">🌟 Sigma</option>
+                            <option value="preitc">🪵 Pre-ITC</option>
+                            <option value="maestros">✝️ Maestros</option>
+                            <option value="kamentsa">🌱 Kamentsá</option>
+                            <option value="manitas">👐 Manitas</option>
+                            <option value="oasis">🌧️ Oasis</option>
+                            <option value="kume">🪶 Kumé</option>
+                        </select>
+                        <p id="lazo-center-desc" class="text-xs text-slate-400 bg-slate-950 p-3 rounded-xl border border-slate-800 flex-grow w-full">
+                            Centro seleccionado para acompañar en esta temporada.
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-12 gap-6 items-center">
+                <!-- Controles de Dibujo -->
+                <div class="md:col-span-5 space-y-4 bg-slate-900/60 p-5 rounded-xl border border-slate-800">
+                    <div>
+                        <label class="block text-xs uppercase font-bold text-slate-400 mb-2">Herramienta</label>
+                        <div class="grid grid-cols-4 gap-2">
+                            <button onclick="setTool('brush')" id="tool-brush" class="py-2.5 bg-emerald-600 text-white rounded-lg text-xs font-bold transition flex flex-col items-center gap-1">
+                                <span>✏️</span> Pincel
+                            </button>
+                            <button onclick="setTool('spray')" id="tool-spray" class="py-2.5 bg-slate-800 text-slate-300 hover:bg-slate-700 rounded-lg text-xs font-bold transition flex flex-col items-center gap-1">
+                                <span>💨</span> Spray
+                            </button>
+                            <button onclick="setTool('fill')" id="tool-fill" class="py-2.5 bg-slate-800 text-slate-300 hover:bg-slate-700 rounded-lg text-xs font-bold transition flex flex-col items-center gap-1">
+                                <span>🪣</span> Relleno
+                            </button>
+                            <button onclick="setTool('eraser')" id="tool-eraser" class="py-2.5 bg-slate-800 text-slate-300 hover:bg-slate-700 rounded-lg text-xs font-bold transition flex flex-col items-center gap-1">
+                                <span>🧹</span> Borrar
+                            </button>
+                        </div>
+                    </div>
+
+                    <div>
+                        <div class="flex justify-between items-center mb-1">
+                            <label class="text-xs uppercase font-bold text-slate-400">Tamaño de Trazo</label>
+                            <span id="brush-size-val" class="text-xs font-mono text-emerald-400">12 px</span>
+                        </div>
+                        <input type="range" id="brush-size" min="4" max="36" value="12" oninput="updateBrushSize(this.value)" class="w-full accent-emerald-500 bg-slate-800 h-2 rounded-lg cursor-pointer">
+                    </div>
+
+                    <div>
+                        <label class="block text-xs uppercase font-bold text-slate-400 mb-2">Color Personalizado</label>
+                        <div class="flex items-center gap-3">
+                            <input type="color" id="color-picker" value="#10b981" onchange="setCurrentColor(this.value)" class="w-12 h-10 bg-slate-900 border border-slate-700 rounded-lg cursor-pointer">
+                            <div class="flex gap-1 flex-wrap flex-grow">
+                                <button onclick="setCurrentColor('#10b981')" class="w-7 h-7 rounded-full bg-emerald-500 border border-white/20"></button>
+                                <button onclick="setCurrentColor('#3b82f6')" class="w-7 h-7 rounded-full bg-blue-500 border border-white/20"></button>
+                                <button onclick="setCurrentColor('#f59e0b')" class="w-7 h-7 rounded-full bg-amber-500 border border-white/20"></button>
+                                <button onclick="setCurrentColor('#ef4444')" class="w-7 h-7 rounded-full bg-red-500 border border-white/20"></button>
+                                <button onclick="setCurrentColor('#8b5cf6')" class="w-7 h-7 rounded-full bg-purple-500 border border-white/20"></button>
+                                <button onclick="setCurrentColor('#ffffff')" class="w-7 h-7 rounded-full bg-white border border-white/20"></button>
+                                <button onclick="setCurrentColor('#0f172a')" class="w-7 h-7 rounded-full bg-slate-900 border border-white/20"></button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="flex gap-2 pt-2">
+                        <button onclick="undoCanvas()" class="flex-1 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-lg text-xs font-bold transition">
+                            ↩️ Retroceder
+                        </button>
+                        <button onclick="clearCanvas()" class="flex-1 py-2 bg-slate-800 hover:bg-slate-700 text-rose-400 rounded-lg text-xs font-bold transition">
+                            🗑️ Limpiar
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Lienzo con Silueta de Camiseta -->
+                <div class="md:col-span-7 flex flex-col items-center justify-center">
+                    <div class="relative bg-slate-950 border border-slate-800 rounded-2xl p-4 flex flex-col items-center shadow-inner w-full max-w-[380px] mx-auto">
+                        <canvas id="jersey-canvas" width="340" height="320" class="cursor-crosshair rounded-xl touch-none w-full h-auto" style="touch-action: none;"></canvas>
+                        <p class="text-xs text-slate-400 mt-2 text-center">Dibuja libremente dentro de la camiseta.</p>
+                    </div>
+
+                    <button onclick="startSeasonGame()" class="mt-6 w-full py-3.5 bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold rounded-xl transition-all shadow-lg shadow-emerald-500/20 uppercase tracking-wider text-sm">
+                        Comenzar Carrera Pastoral ➔
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- PANTALLA PRINCIPAL DE JUEGO -->
+        <section id="screen-game" class="w-full max-w-5xl hidden flex flex-col lg:flex-row gap-6">
+            <!-- Panel Izquierdo: Ficha Estilo FUT Replicada -->
+            <div class="w-full lg:w-1/3 flex flex-col space-y-4">
+                
+                <!-- Tarjeta Superior: Media, Nombre, Etapa y Centro -->
+                <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4 relative overflow-hidden shadow-lg">
+                    <div class="flex items-center gap-4">
+                        <div class="w-16 h-20 bg-emerald-500 rounded-xl flex flex-col items-center justify-center text-slate-950 font-bold shadow-md">
+                            <span id="ui-ovr" class="text-3xl font-teko leading-none font-bold">50</span>
+                            <span class="text-[10px] uppercase font-bold tracking-widest mt-0.5">MEDIA</span>
+                        </div>
+                        <div class="flex-grow min-w-0">
+                            <div class="flex items-center gap-2 text-xs font-mono text-slate-400">
+                                🇨🇴 <span id="game-player-display" class="font-bold text-white truncate">Jugador</span>
+                            </div>
+                            <h2 id="game-stage-name" class="text-xl font-teko text-emerald-400 uppercase tracking-wide truncate">Torre (Grado 8°)</h2>
+                            <p class="text-[11px] text-slate-400">Trayectoria Lasallista</p>
+                        </div>
+                        <div id="game-center-name" class="bg-slate-950 px-3 py-2 rounded-xl border border-slate-800 text-center flex flex-col items-center justify-center">
+                            <span class="text-xl">🌟</span>
+                            <span class="text-[10px] text-slate-300 font-bold mt-0.5">Sigma</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Contadores de Semana y Logros -->
+                <div class="grid grid-cols-2 gap-3">
+                    <div class="bg-slate-900 border border-slate-800 p-3 rounded-xl text-center">
+                        <span id="event-counter" class="text-xl font-teko font-bold text-white block">1 / 5</span>
+                        <span class="text-[10px] text-slate-400 uppercase tracking-wider block font-bold">SEMANA</span>
+                    </div>
+                    <div class="bg-slate-900 border border-slate-800 p-3 rounded-xl text-center">
+                        <span id="header-trophies-panel" class="text-xl font-teko font-bold text-amber-400 block">0</span>
+                        <span class="text-[10px] text-slate-400 uppercase tracking-wider block font-bold">LOGROS</span>
+                    </div>
+                </div>
+
+                <!-- Atributos Pastorales (LID, EMP, PRE, CRE, CG) -->
+                <div class="grid grid-cols-5 gap-1 sm:gap-2 bg-slate-900/90 border border-slate-800 p-2 sm:p-3 rounded-2xl">
+                    <div class="bg-slate-950 p-1 sm:p-2 rounded-xl border border-slate-800/80 text-center relative">
+                        <div id="trend-lid" class="absolute top-1 right-1 sm:right-1.5 text-[9px] sm:text-[10px] font-bold"></div>
+                        <span id="val-lid" class="text-lg sm:text-xl font-teko text-emerald-400 font-bold block leading-none">50</span>
+                        <span class="text-[8px] sm:text-[9px] uppercase font-bold text-slate-400 block mt-1 tracking-tight">LID</span>
+                    </div>
+                    <div class="bg-slate-950 p-1 sm:p-2 rounded-xl border border-slate-800/80 text-center relative">
+                        <div id="trend-emp" class="absolute top-1 right-1 sm:right-1.5 text-[9px] sm:text-[10px] font-bold"></div>
+                        <span id="val-emp" class="text-lg sm:text-xl font-teko text-blue-400 font-bold block leading-none">50</span>
+                        <span class="text-[8px] sm:text-[9px] uppercase font-bold text-slate-400 block mt-1 tracking-tight">EMP</span>
+                    </div>
+                    <div class="bg-slate-950 p-1 sm:p-2 rounded-xl border border-slate-800/80 text-center relative">
+                        <div id="trend-pre" class="absolute top-1 right-1 sm:right-1.5 text-[9px] sm:text-[10px] font-bold"></div>
+                        <span id="val-pre" class="text-lg sm:text-xl font-teko text-amber-400 font-bold block leading-none">50</span>
+                        <span class="text-[8px] sm:text-[9px] uppercase font-bold text-slate-400 block mt-1 tracking-tight">PRE</span>
+                    </div>
+                    <div class="bg-slate-950 p-1 sm:p-2 rounded-xl border border-slate-800/80 text-center relative">
+                        <div id="trend-cre" class="absolute top-1 right-1 sm:right-1.5 text-[9px] sm:text-[10px] font-bold"></div>
+                        <span id="val-cre" class="text-lg sm:text-xl font-teko text-purple-400 font-bold block leading-none">50</span>
+                        <span class="text-[8px] sm:text-[9px] uppercase font-bold text-slate-400 block mt-1 tracking-tight">CRE</span>
+                    </div>
+                    <div class="bg-slate-950 p-1 sm:p-2 rounded-xl border border-slate-800/80 text-center relative">
+                        <div id="trend-cg" class="absolute top-1 right-1 sm:right-1.5 text-[9px] sm:text-[10px] font-bold"></div>
+                        <span id="val-cg" class="text-lg sm:text-xl font-teko text-rose-400 font-bold block leading-none">50</span>
+                        <span class="text-[8px] sm:text-[9px] uppercase font-bold text-slate-400 block mt-1 tracking-tight">CG</span>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- Panel Derecho: Eventos -->
+            <div id="event-panel-wrapper" class="w-full lg:w-2/3 glass-card p-6 md:p-8 flex flex-col relative overflow-hidden transition-all duration-300">
+                <div class="absolute top-0 left-0 w-full h-1 bg-slate-800">
+                    <div id="event-progress-bar" class="h-full bg-emerald-500 transition-all duration-500" style="width: 20%"></div>
+                </div>
+
+                <div class="flex flex-wrap justify-between items-center gap-2 mb-6 mt-2">
+                    <span id="event-counter-badge" class="bg-slate-800 text-slate-300 px-3 py-1 rounded text-xs font-bold tracking-widest uppercase">Semana 1 / 5</span>
+                    <span id="event-type-badge" class="px-3 py-1 rounded text-xs font-bold tracking-widest uppercase bg-blue-900/50 text-blue-400 border border-blue-700">DECISIÓN</span>
+                </div>
+
+                <h2 id="event-title" class="text-3xl font-teko text-white mb-4 leading-tight">Título del Evento</h2>
+                <p id="event-desc" class="text-slate-300 text-sm md:text-base leading-relaxed mb-8 bg-slate-900/50 p-4 rounded-xl border border-slate-800/80">Descripción del escenario pastoral actual.</p>
+
+                <div id="event-options-container" class="space-y-3 mt-auto">
+                    <!-- Opciones inyectadas dinámicamente -->
+                </div>
+            </div>
+        </section>
+
+        <!-- MODAL DE RESULTADO / FEEDBACK (SEMITRANSPARENTE) -->
+        <div id="modal-feedback" class="fixed inset-0 z-50 flex items-center justify-center p-4 pointer-events-none hidden transition-all duration-300">
+            <div id="feedback-card" class="bg-slate-900/95 backdrop-blur-md max-w-lg w-full max-h-[95vh] overflow-y-auto p-6 text-center border border-emerald-500/50 rounded-2xl shadow-2xl pointer-events-auto transform scale-95 opacity-0 transition-all duration-300">
+                <div id="feedback-icon" class="text-4xl mb-3">🎉</div>
+                <h3 id="feedback-title" class="text-2xl font-teko text-white uppercase mb-2">¡Resultado!</h3>
+                <p id="feedback-desc" class="text-sm text-slate-300 mb-6">Detalle del impacto de tu decisión en el centro.</p>
+                <button onclick="nextEvent()" class="w-full py-3 bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold rounded-xl transition uppercase tracking-wider text-xs shadow-lg">
+                    Continuar Siguiente Semana ➔
+                </button>
+            </div>
+        </div>
+
+        <!-- MODAL DE RESUMEN ANUAL -->
+        <div id="modal-annual-summary" class="fixed inset-0 bg-slate-950/90 backdrop-blur-md z-50 flex items-center justify-center p-4 hidden">
+            <div class="glass-card max-w-lg w-full max-h-[95vh] overflow-y-auto p-6 md:p-8 border border-amber-500/40 shadow-2xl text-center">
+                <span class="text-4xl block mb-2">🏆</span>
+                <h3 class="text-3xl font-teko text-amber-400 uppercase mb-1">Resumen Anual de Trayectoria</h3>
+                <p id="summary-subtitle" class="text-xs text-slate-400 mb-6">Has culminado con éxito esta fase en tu carrera lasallista.</p>
+
+                <div class="bg-slate-900/80 border border-slate-800 rounded-2xl p-5 mb-6 text-left grid grid-cols-2 gap-4 items-center">
+                    <div>
+                        <span class="text-xs uppercase font-bold text-slate-400 block mb-1">Trayecto / Grado</span>
+                        <span id="summary-stage" class="text-lg font-teko text-white block">Torre (Grado 8°)</span>
+                        
+                        <span class="text-xs uppercase font-bold text-slate-400 block mt-3 mb-1">Centro de Proyección</span>
+                        <span id="summary-center" class="text-sm font-bold text-emerald-400 flex items-center gap-1.5">🌟 Sigma</span>
+
+                        <span class="text-xs uppercase font-bold text-slate-400 block mt-3 mb-1">Promedio OVR Final</span>
+                        <span id="summary-ovr" class="text-2xl font-teko text-amber-400 font-bold">50</span>
+                    </div>
+                    <div class="flex flex-col items-center justify-center bg-slate-950 p-3 rounded-xl border border-slate-800">
+                        <span class="text-xs text-slate-400 uppercase font-bold mb-2">Tu Camiseta</span>
+                        <img id="summary-jersey-img" src="" alt="Camiseta Diseñada" class="w-24 h-24 object-contain rounded-lg border border-slate-800 bg-slate-900">
+                    </div>
+                </div>
+
+                <div class="bg-slate-950 border border-slate-800 rounded-xl p-4 mb-6 text-left">
+                    <span class="text-xs uppercase font-bold text-amber-400 block mb-2">🏅 Logros Ganados Este Año:</span>
+                    <div id="summary-year-achievements" class="space-y-1 text-xs text-slate-300">
+                        <!-- Inyectado dinámicamente -->
+                    </div>
+                </div>
+
+                <div class="space-y-3">
+                    <button onclick="proceedNextStage()" class="w-full py-3.5 bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold rounded-xl transition uppercase tracking-wider text-sm shadow-lg shadow-emerald-500/20">
+                        Continuar Carrera ➔
+                    </button>
+                    <button onclick="leavePastoral()" class="w-full py-3 bg-slate-800 hover:bg-slate-700 text-rose-400 font-bold rounded-xl transition uppercase tracking-wider text-xs border border-rose-500/30">
+                        Abandonar Pastoral
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- MODAL DE EVENTOS ESPECIALES / MINIJUEGOS -->
+        <div id="modal-special-event" class="fixed inset-0 bg-slate-950/90 backdrop-blur-md z-50 flex items-center justify-center p-4 hidden">
+            <div class="glass-card max-w-md w-full max-h-[95vh] overflow-y-auto p-6 text-center border border-amber-500/50 glow-emerald">
+                <div id="special-event-icon" class="text-5xl mb-3">🏅</div>
+                <h3 id="special-event-title" class="text-2xl font-teko text-amber-400 uppercase mb-2">¡Reconocimiento Especial!</h3>
+                <p id="special-event-desc" class="text-sm text-slate-300 mb-4">¡Ha ocurrido un evento extraordinario en tu temporada!</p>
+
+                <div id="special-minigame-container" class="bg-slate-900 border border-slate-800 rounded-xl p-4 mb-5 hidden text-left">
+                    <!-- Área del minijuego dinámico -->
+                </div>
+
+                <button id="special-event-btn" onclick="closeSpecialEventModal()" class="w-full py-3 bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold rounded-xl transition uppercase tracking-wider text-xs">
+                    Reclamar Recompensa ➔
+                </button>
+            </div>
+        </div>
+
+        <!-- PANTALLA FINAL -->
+        <section id="screen-final" class="w-full max-w-5xl glass-card p-6 md:p-8 hidden space-y-8">
+            <div class="text-center border-b border-slate-800 pb-6">
+                <span class="text-5xl block mb-2">⭐</span>
+                <h2 class="text-4xl font-teko uppercase text-emerald-400 tracking-wide">Tarjeta de Animador Lasallista</h2>
+                <p class="text-slate-400 text-sm">Resumen completo de tu trayectoria, vestimenta y galardones conquistados.</p>
+            </div>
+
+            <!-- Ficha de Animador con Puntajes Finales -->
+            <div class="bg-slate-900/90 border border-emerald-500/30 rounded-2xl p-6 grid grid-cols-1 md:grid-cols-12 gap-6 items-center">
+                <div class="md:col-span-4 text-center border-r-0 md:border-r border-slate-800 pr-0 md:pr-6">
+                    <div class="w-20 h-20 bg-emerald-500/10 text-emerald-400 border border-emerald-500/40 rounded-full flex items-center justify-center mx-auto mb-3 text-4xl">
+                        👤
+                    </div>
+                    <h3 id="final-card-name" class="text-2xl font-teko text-white uppercase">Nombre Animador</h3>
+                    <div class="inline-block bg-emerald-950 text-emerald-400 border border-emerald-800 px-3 py-1 rounded-full text-xs font-mono font-bold mt-1">
+                        Leyenda de Pastoral
+                    </div>
+                    <div class="mt-4 bg-slate-950 p-3 rounded-xl border border-slate-800">
+                        <span class="text-xs text-slate-400 uppercase tracking-wider block">OVR Final</span>
+                        <span id="final-card-ovr" class="text-5xl font-teko text-amber-400 font-bold">50</span>
+                    </div>
+                </div>
+
+                <div class="md:col-span-8 grid grid-cols-2 sm:grid-cols-3 gap-4">
+                    <div class="bg-slate-950 p-3.5 rounded-xl border border-slate-800">
+                        <span class="text-xs text-slate-400 uppercase font-bold block mb-1">Liderazgo (LID)</span>
+                        <span id="final-stat-lid" class="text-2xl font-teko text-emerald-400 font-bold">50</span>
+                    </div>
+                    <div class="bg-slate-950 p-3.5 rounded-xl border border-slate-800">
+                        <span class="text-xs text-slate-400 uppercase font-bold block mb-1">Empatía (EMP)</span>
+                        <span id="final-stat-emp" class="text-2xl font-teko text-blue-400 font-bold">50</span>
+                    </div>
+                    <div class="bg-slate-950 p-3.5 rounded-xl border border-slate-800">
+                        <span class="text-xs text-slate-400 uppercase font-bold block mb-1">Preparación (PRE)</span>
+                        <span id="final-stat-pre" class="text-2xl font-teko text-amber-400 font-bold">50</span>
+                    </div>
+                    <div class="bg-slate-950 p-3.5 rounded-xl border border-slate-800">
+                        <span class="text-xs text-slate-400 uppercase font-bold block mb-1">Creatividad (CRE)</span>
+                        <span id="final-stat-cre" class="text-2xl font-teko text-purple-400 font-bold">50</span>
+                    </div>
+                    <div class="bg-slate-950 p-3.5 rounded-xl border border-slate-800">
+                        <span class="text-xs text-slate-400 uppercase font-bold block mb-1">Control Grupo (CG)</span>
+                        <span id="final-stat-cg" class="text-2xl font-teko text-rose-400 font-bold">50</span>
+                    </div>
+                    <div class="bg-slate-950 p-3.5 rounded-xl border border-slate-800">
+                        <span class="text-xs text-slate-400 uppercase font-bold block mb-1">Total Camisetas</span>
+                        <span id="final-stat-jerseys" class="text-2xl font-teko text-white font-bold">0</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Desglose de Logros -->
+            <div>
+                <h3 class="text-2xl font-teko uppercase text-amber-400 mb-4 flex items-center gap-2">
+                    <span>🏆</span> Vitrina de Logros Obtenidos
+                </h3>
+                <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-4">
+                    <div class="bg-slate-900 border border-slate-800 p-4 rounded-xl text-center">
+                        <span class="text-3xl block mb-1">🎖️</span>
+                        <span class="text-[10px] text-slate-400 uppercase font-bold block">Menciones Honoríficas</span>
+                        <span id="trophy-count-menciones" class="text-3xl font-teko text-white font-bold">0</span>
+                    </div>
+                    <div class="bg-slate-900 border border-slate-800 p-4 rounded-xl text-center">
+                        <span class="text-3xl block mb-1">✈️</span>
+                        <span class="text-[10px] text-slate-400 uppercase font-bold block">Eventos Distritales</span>
+                        <span id="trophy-count-distritales" class="text-3xl font-teko text-blue-400 font-bold">0</span>
+                    </div>
+                    <div class="bg-slate-900 border border-slate-800 p-4 rounded-xl text-center">
+                        <span class="text-3xl block mb-1">⚽</span>
+                        <span class="text-[10px] text-slate-400 uppercase font-bold block">Torneos Intercentros</span>
+                        <span id="trophy-count-torneos" class="text-3xl font-teko text-amber-400 font-bold">0</span>
+                    </div>
+                    <div class="bg-slate-900 border border-slate-800 p-4 rounded-xl text-center">
+                        <span class="text-3xl block mb-1">🎨</span>
+                        <span class="text-[10px] text-slate-400 uppercase font-bold block">Recuerdos</span>
+                        <span id="trophy-count-recuerdos" class="text-3xl font-teko text-purple-400 font-bold">0</span>
+                    </div>
+                    <div class="bg-slate-900 border border-slate-800 p-4 rounded-xl text-center">
+                        <span class="text-3xl block mb-1">🌟</span>
+                        <span class="text-[10px] text-slate-400 uppercase font-bold block">Direcciones de Evento</span>
+                        <span id="trophy-count-direcciones" class="text-3xl font-teko text-emerald-400 font-bold">0</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Galería de Camisetas Diseñadas -->
+            <div>
+                <h3 class="text-2xl font-teko uppercase text-emerald-400 mb-4 flex items-center gap-2">
+                    <span>👕</span> Galería de Indumentaria Diseñada
+                </h3>
+                <div id="final-jersey-gallery" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                    <!-- Inyectado dinámicamente -->
+                </div>
+            </div>
+
+            <!-- ÚNICO BOTÓN MASTER DE DESCARGA PDF -->
+            <div class="pt-4 text-center flex flex-col sm:flex-row gap-4 justify-center">
+                <button onclick="downloadMasterPDF()" class="px-8 py-3.5 bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold rounded-xl transition shadow-lg shadow-amber-500/20 uppercase tracking-wider text-sm flex items-center justify-center gap-2">
+                    <span>📄</span> Descargar Reporte PDF Completo
+                </button>
+                <button onclick="location.reload()" class="px-8 py-3.5 bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold rounded-xl transition shadow-lg shadow-emerald-500/20 uppercase tracking-wider text-sm flex items-center justify-center gap-2">
+                    <span>🔄</span> Iniciar Nueva Carrera Pastoral
+                </button>
+            </div>
+        </section>
+
+    </main>
+
+    <script>
+        const CENTERS = {
+            'sigma': { name: 'Sigma', emoji: '🌟', desc: 'Centro principal de formación y liderazgo lasallista.' },
+            'preitc': { name: 'Pre-ITC', emoji: '🪵', desc: 'Preparación académica rigurosa para la ETITC.' },
+            'maestros': { name: 'Maestros', emoji: '✝️', desc: 'Catequesis, vida sacramental y Primera Comunión.' },
+            'kamentsa': { name: 'Kamentsá', emoji: '🌱', desc: 'Huerta comunitaria, sostenibilidad y soberanía alimentaria.' },
+            'manitas': { name: 'Manitas', emoji: '👐', desc: 'Educación infantil, convivencia y ecología ambiental.' },
+            'oasis': { name: 'Oasis', emoji: '🌧️', desc: 'Trabajo comunitario intergeneracional y apoyo barrial.' },
+            'kume': { name: 'Kumé', emoji: '🪶', desc: 'Liderazgo juvenil, sede Quiba y desarrollo social.' }
+        };
+
+        const STAGES = [
+            { id: 'torre', name: 'Torre (Grado 8°)' },
+            { id: 'leon', name: 'León (Grado 9°)' },
+            { id: 'base1', name: 'Base (Primer Año - 10°)' },
+            { id: 'base2', name: 'Base (Segundo Año - 11°)' },
+            { id: 'lazo1', name: 'Lazo 1 (Egresado 1° Año)' },
+            { id: 'lazo2', name: 'Lazo 2 (Egresado 2° Año)' },
+            { id: 'lazo3', name: 'Lazo 3 (Egresado 3° Año)' },
+            { id: 'lazo4', name: 'Lazo 4 (Egresado 4° Año)' },
+            { id: 'lazo5', name: 'Lazo 5 (Egresado 5° Año)' },
+            { id: 'lazo6', name: 'Lazo 6 (Egresado 6° Año)' },
+            { id: 'lazo7', name: 'Lazo 7 (Egresado 7° Año)' },
+            { id: 'lazo8', name: 'Lazo 8 (Egresado 8° Año)' },
+            { id: 'lazo9', name: 'Lazo 9 (Egresado 9° Año)' },
+            { id: 'lazo10', name: 'Lazo 10 (Egresado 10° Año)' }
+        ];
+
+        let state = {
+            playerName: '',
+            stageIdx: 0,
+            centerKey: 'sigma',
+            matchedDbKey: '',
+            eventIdx: 0,
+            events: [],
+            stats: { LID: 50, EMP: 50, PRE: 50, CRE: 50, CG: 50, OVR: 50 },
+            statTrends: { LID: '', EMP: '', PRE: '', CRE: '', CG: '' },
+            jerseys: [],
+            achievements: {
+                mencionHonorifica: 0,
+                eventosDistritales: 0,
+                torneosIntercentros: 0,
+                recuerdos: 0,
+                direccionesEventos: 0
+            },
+            yearAchievements: [],
+            currentStageEventsDone: {}
+        };
+
+        function showScreen(screenId) {
+            ['screen-step1', 'screen-step2', 'screen-step3', 'screen-game', 'screen-final'].forEach(id => {
+                const el = document.getElementById(id);
+                if (el) el.classList.add('hidden');
+            });
+            const target = document.getElementById(screenId);
+            if (target) target.classList.remove('hidden');
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        const DEFAULT_RAW_DATA = `
+CLAVE: lazo10_sigma
+1. El último relevo de Sigma Debes elegir y preparar al equipo que asumirá la dirección de Sigma después de tu salida. Hay varios candidatos con capacidades diferentes: algunos destacan por su liderazgo, otros por su conocimiento lasallista y otros por su capacidad para formar personas. Tipo: DECISIÓN Opción A: Seleccionas un equipo complementario, distribuyendo responsabilidades según las fortalezas de cada integrante (+4 LID, +2 CG) Opción B: Diseñas un proceso de formación personalizado para preparar a los futuros responsables antes de entregarles el centro (+5 PRE, +1 EMP) Opción C: Permites que los candidatos construyan una propuesta propia de liderazgo y elijan cómo desean transformar Sigma (+5 CRE, +1 LID)
+2. Una década de aprendizajes que no puede perderse A lo largo de diez años has acumulado experiencias, metodologías, reflexiones y aprendizajes que han definido la identidad de Sigma. Sin embargo, gran parte de ese conocimiento permanece en tu memoria y en la de otros antiguos animadores. Tipo: DECISIÓN Opción A: Construyes un archivo histórico que reúna documentos, experiencias, proyectos y aprendizajes de las distintas generaciones (+5 PRE, +1 CG) Opción B: Organizas un encuentro de generaciones donde los antiguos integrantes transmitan sus experiencias a los nuevos animadores (+4 EMP, +2 LID) Opción C: Creas una producción audiovisual que recoja los momentos más significativos y el significado de Sigma para sus integrantes (+5 CRE, +1 EMP)
+3. El último Sigma para Pastoral La organización de Sigma para Pastoral representa uno de los proyectos más importantes del centro. Este año quieres que su última edición bajo tu dirección sea especialmente significativa, pero también deseas que los nuevos líderes puedan apropiarse de ella. Tipo: DECISIÓN Opción A: Diseñas una edición que reúna a todos los centros alrededor de los valores lasallistas y la identidad de Pastoral (+4 LID, +2 EMP) Opción B: Entregas la dirección del evento a los futuros responsables y asumes un papel de acompañamiento y asesoría (+5 PRE, +2 CG) Opción C: Propones una experiencia innovadora donde cada centro represente una virtud del maestro mediante actividades participativas (+4 CRE, +2 CG)
+4. Una última formación en Fundación Aurora Después de varios años acompañando a los niños de Fundación Aurora, quieres garantizar que las futuras generaciones de Sigma comprendan la importancia de la inclusión, la paciencia y el respeto por las diferencias. Sin embargo, sabes que estas capacidades no se adquieren únicamente mediante explicaciones. Tipo: DECISIÓN Opción A: Diseñas una formación práctica donde los futuros animadores conozcan estrategias de acompañamiento y las pongan en práctica con orientación (+5 PRE, +1 EMP) Opción B: Organizas un encuentro de reflexión donde los antiguos voluntarios compartan experiencias y aprendizajes sobre la inclusión (+4 EMP, +2 LID) Opción C: Construyes una alianza de acompañamiento permanente entre Sigma y Fundación Aurora, con compromisos definidos para ambas partes (+4 LID, +2 CG)
+5. La identidad de Sigma después de tu salida Algunos integrantes consideran que Sigma debería conservar exactamente las tradiciones que lo han caracterizado durante años. Otros creen que el centro necesita transformarse para responder a las nuevas generaciones. Debes definir qué identidad quieres dejar. Tipo: DECISIÓN Opción A: Estableces unos principios fundamentales que orienten las decisiones futuras sin imponer una única manera de trabajar (+5 LID, +2 PRE) Opción B: Permites que el nuevo equipo rediseñe las actividades, conservando únicamente los valores que considera esenciales (+5 CRE, +1 CG) Opción C: Organizas un proceso de reflexión colectiva para construir una visión compartida entre generaciones (+4 EMP, +2 LID)
+6. La última gran convocatoria En tu último año, Sigma recibe la oportunidad de convocar a antiguos integrantes de distintas generaciones para una jornada de reencuentro y formación. El proyecto tiene un enorme potencial, pero coordinar a personas con experiencias y responsabilidades diferentes representa un desafío. Tipo: AZAR Éxito (36%): Logras reunir a representantes de distintas generaciones y convertir el encuentro en una experiencia de formación, memoria y compromiso con Sigma (+4 LID, +2 EMP) Fracaso (64%): Las dificultades de coordinación reducen la participación y el encuentro no consigue representar la diversidad de generaciones que esperabas (-4 CG, -2 LID)
+7. El primer gran error de tus sucesores Durante una de las últimas actividades, el nuevo equipo toma una decisión equivocada que afecta la organización de la jornada. Algunos animadores esperan que intervengas para corregir inmediatamente la situación, pero sabes que también necesitan aprender a asumir las consecuencias de sus decisiones. Tipo: AZAR Éxito (58%): Acompañas al equipo sin reemplazarlo, permitiendo que reconozca sus errores, proponga soluciones y fortalezca su autonomía (+3 EMP, +2 CG, +2 LID) Fracaso (42%): La intervención llega demasiado tarde y el equipo pierde confianza en su capacidad para dirigir situaciones difíciles (-4 LID, -2 EMP)
+8. Una propuesta para transformar Pastoral Una nueva generación de animadores propone modificar algunos aspectos tradicionales de la formación lasallista. Su intención es acercar los valores de Sigma a las problemáticas actuales, pero algunos antiguos integrantes consideran que la propuesta podría debilitar su identidad. Tipo: AZAR Éxito (31%): Consigues facilitar un diálogo entre generaciones y construir una propuesta que integra la tradición lasallista con las nuevas necesidades de Pastoral (+4 EMP, +2 PRE) Fracaso (69%): Las diferencias se convierten en una disputa entre generaciones y la propuesta termina dividiendo al equipo (-4 EMP, -2 CG)
+9. La última crisis de organización A pocas semanas de finalizar el año, una dificultad inesperada amenaza la realización de una actividad institucional de Sigma. El nuevo equipo todavía no domina todos los procesos y varios integrantes esperan que tomes nuevamente el control de la organización. Tipo: AZAR Éxito (24%): Consigues orientar al equipo para reorganizar sus responsabilidades y resolver la situación sin asumir nuevamente toda la dirección (+5 CG, +2 PRE) Fracaso (76%): La falta de experiencia del equipo provoca una reorganización apresurada y debes intervenir directamente para evitar que la actividad se pierda (-5 CG, -2 LID)
+10. Tu última jornada en Sigma Llega el último sábado de tu trayectoria en Pastoral. Durante la jornada observas a los animadores que formaste, los proyectos que ayudaste a construir y las personas que encontraron en Sigma un espacio para crecer. Es momento de entregar definitivamente el centro y confiar en que todo lo aprendido continuará dando frutos. Tipo: AZAR Éxito (47%): Realizas una entrega organizada, reconoces el camino recorrido y confías la dirección a un equipo preparado para continuar y transformar el legado de Sigma (+3 EMP, +2 LID, +2 PRE) Fracaso (53%): La despedida evidencia que algunos procesos todavía dependen demasiado de ti y la transición deja responsabilidades sin resolver (-4 LID, -2 CG)
+`;
+
+        let PARSED_EVENTS = {};
+
+        window.onload = async function() {
+            initCanvas();
+            showScreen('screen-step1');
+
+            try {
+                const res = await fetch('https://raw.githubusercontent.com/Millie3494/Eventos-Juego-Pastoral/main/Eventos.json');
+                if (res.ok) {
+                    const data = await res.json();
+                    if (Array.isArray(data)) {
+                        PARSED_EVENTS = {};
+                        data.forEach(ev => {
+                            const key = ev.clave || ev.Clave || ev.CLAVE;
+                            if(!key) return;
+                            const normalizedKey = key.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[-\s]+/g, '_');
+                            if (!PARSED_EVENTS[normalizedKey]) PARSED_EVENTS[normalizedKey] = [];
+                            
+                            let internalEv = {
+                                title: ev.titulo || ev.Titulo || ev.title || "Evento Pastoral",
+                                desc: ev.descripcion || ev.Descripcion || ev.desc || "Descripción del evento...",
+                                type: ev.tipo || ev.Tipo || ev.type || "DECISIÓN",
+                                options: [],
+                            };
+                            
+                            if (internalEv.type.toUpperCase().includes("DECISI")) {
+                                internalEv.type = "DECISIÓN";
+                                const ops = ev.opciones || ev.Opciones || ev.options || [];
+                                internalEv.options = ops.map(o => ({
+                                    text: o.texto || o.Texto || o.text || "",
+                                    effects: o.efectos || o.Efectos || o.effects || {}
+                                }));
+                            } else {
+                                internalEv.type = "AZAR";
+                                internalEv.chance = ev.probabilidadExito || ev.ProbabilidadExito || ev.chance || 50;
+                                internalEv.success = {
+                                    text: ev.exito?.texto || ev.Exito?.Texto || ev.success?.text || "",
+                                    effects: ev.exito?.efectos || ev.Exito?.Efectos || ev.success?.effects || {}
+                                };
+                                internalEv.failure = {
+                                    text: ev.fracaso?.texto || ev.Fracaso?.Texto || ev.failure?.text || "",
+                                    effects: ev.fracaso?.efectos || ev.Fracaso?.Efectos || ev.failure?.effects || {}
+                                };
+                            }
+                            PARSED_EVENTS[normalizedKey].push(internalEv);
+                        });
+                    } else if (typeof data === 'object') {
+                        PARSED_EVENTS = data;
+                    }
+                    document.getElementById('db-load-status-home').innerText = "¡Sistema listo!";
+                    setTimeout(() => { const el = document.getElementById('db-load-status-home'); if(el) el.innerText=""; }, 2000);
+                } else { throw new Error(); }
+            } catch(e) {
+                PARSED_EVENTS = parseDataset(DEFAULT_RAW_DATA);
+                document.getElementById('db-load-status-home').innerText = "¡Sistema listo!";
+                setTimeout(() => { const el = document.getElementById('db-load-status-home'); if(el) el.innerText=""; }, 2000);
+            }
+        };
+
+        function sanitizeText(str) {
+            if (!str) return '';
+            return str.replace(/ś/g, 'ú').replace(/Ž/g, 'é').replace(/—/g, 'ó').replace(/‡/g, 'á').replace(/’/g, 'í').replace(/–/g, 'ñ').replace(/Â/g, '').replace(/Ã/g, 'á');
+        }
+
+        function parseDataset(raw) {
+            const data = {};
+            const sanitizedRaw = sanitizeText(raw);
+            const blocks = sanitizedRaw.split("CLAVE:");
+            for (let i = 1; i < blocks.length; i++) {
+                let text = blocks[i].trim();
+                let keyMatch = text.match(/^([a-zA-Z0-9_\-\s]+)/);
+                if(!keyMatch) continue;
+                let rawKey = keyMatch[1].trim();
+                let key = rawKey.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[-\s]+/g, '_');
+                let content = text.substring(rawKey.length).trim();
+                data[key] = [];
+                let items = content.split(/(?=\b(?:[1-9]|10)\.\s)/).filter(e => e.trim().length > 0);
+                for(let item of items) {
+                    let parts = item.split(/Tipo:\s*/);
+                    if (parts.length < 2) continue;
+                    let header = parts[0].replace(/^\d+\.\s*/, '').trim();
+                    let mechanics = parts[1].trim();
+                    let title = "Reto Pastoral";
+                    let desc = header;
+                    let firstPeriod = header.indexOf('.');
+                    if (firstPeriod !== -1 && firstPeriod < 60) {
+                        title = header.substring(0, firstPeriod).trim();
+                        desc = header.substring(firstPeriod + 1).trim();
+                    }
+                    let evObj = { title, desc, type: "", options: [] };
+                    if (mechanics.toUpperCase().includes("DECISION") || mechanics.toUpperCase().includes("DECISI")) {
+                        evObj.type = "DECISIÓN";
+                        let optsText = mechanics.split(/Opción\s+[A-C]:\s*/i).filter(x => x.trim().length > 0);
+                        for (let j = 1; j < optsText.length; j++) {
+                            let opt = optsText[j];
+                            let match = opt.match(/\((.*?)\)/);
+                            if(match) {
+                                let txt = opt.substring(0, match.index).trim();
+                                let eff = parseEffects(match[1]);
+                                evObj.options.push({ text: txt, effects: eff });
+                            }
+                        }
+                    } else {
+                        evObj.type = "AZAR";
+                        let successMatch = mechanics.match(/(?:Éxito|\bxito|xito)\s*\(\s*(\d+)\s*%\s*\)\s*:\s*(.*?)(?=(?:Fracaso|Fallo)\s*\()/i);
+                        let failureMatch = mechanics.match(/(?:Fracaso|Fallo)\s*\(\s*(\d+)\s*%\s*\)\s*:\s*(.*)/i);
+                        if(successMatch && failureMatch) {
+                            evObj.chance = parseInt(successMatch[1], 10);
+                            let sMatch = successMatch[2].match(/\((.*?)\)[^)]*$/);
+                            evObj.success = {
+                                text: sMatch ? successMatch[2].substring(0, sMatch.index).trim() : successMatch[2].trim(),
+                                effects: sMatch ? parseEffects(sMatch[1]) : {}
+                            };
+                            let fMatch = failureMatch[2].match(/\((.*?)\)[^)]*$/);
+                            evObj.failure = {
+                                text: fMatch ? failureMatch[2].substring(0, fMatch.index).trim() : failureMatch[2].trim(),
+                                effects: fMatch ? parseEffects(fMatch[1]) : {}
+                            };
+                        }
+                    }
+                    data[key].push(evObj);
+                }
+            }
+            return data;
+        }
+
+        function parseEffects(effStr) {
+            let eff = {};
+            let parts = effStr.split(',');
+            parts.forEach(p => {
+                let m = p.trim().match(/([+\-]?\d+)\s*([A-Z]{2,3})/i);
+                if(m) eff[m[2].toUpperCase()] = parseInt(m[1], 10);
+            });
+            return eff;
+        }
+
+        function goToStep2() {
+            const name = document.getElementById('input-player-name').value.trim();
+            if(!name) { alert("Por favor ingresa tu nombre."); return; }
+            state.playerName = name;
+            document.getElementById('header-player').innerText = name;
+            showScreen('screen-step2');
+            updateCenterSelectionUI();
+            redrawJersey();
+        }
+
+        function updateCenterSelectionUI() {
+            const currentStage = STAGES[state.stageIdx];
+            document.getElementById('jersey-stage-name').innerText = currentStage.name;
+            const isLazo = !['torre', 'leon', 'base1', 'base2'].includes(currentStage.id);
+            const badgeEl = document.getElementById('center-mode-badge');
+            const selectorContainer = document.getElementById('center-selector-container');
+            const randomDisplay = document.getElementById('center-random-display');
+
+            if (!isLazo) {
+                badgeEl.className = "bg-amber-950 text-amber-400 border border-amber-800 px-3 py-1 rounded-full text-xs font-mono font-bold";
+                badgeEl.innerText = "🎲 Asignación Aleatoria (Etapa Escolar)";
+                const centerKeys = Object.keys(CENTERS);
+                state.centerKey = centerKeys[Math.floor(Math.random() * centerKeys.length)];
+                const c = CENTERS[state.centerKey];
+                randomDisplay.classList.remove('hidden');
+                selectorContainer.classList.add('hidden');
+                document.getElementById('random-center-emoji').innerText = c.emoji;
+                document.getElementById('random-center-name').innerText = `Centro ${c.name}`;
+                document.getElementById('random-center-desc').innerText = c.desc;
+            } else {
+                badgeEl.className = "bg-emerald-950 text-emerald-400 border border-emerald-800 px-3 py-1 rounded-full text-xs font-mono font-bold";
+                badgeEl.innerText = "✨ Selección Libre de Centro (Egresado Lazo)";
+                randomDisplay.classList.add('hidden');
+                selectorContainer.classList.remove('hidden');
+                if(!state.centerKey) state.centerKey = 'sigma';
+                document.getElementById('select-center-dropdown').value = state.centerKey;
+                onCenterDropdownChange(state.centerKey);
+            }
+        }
+
+        function onCenterDropdownChange(val) {
+            state.centerKey = val;
+            const c = CENTERS[val];
+            document.getElementById('lazo-center-desc').innerText = c ? c.desc : '';
+        }
+
+        let canvas, ctx;
+        let currentTool = 'brush';
+        let currentColor = '#10b981';
+        let brushSize = 12;
+        let isDrawing = false;
+        let historyStack = [];
+
+        function initCanvas() {
+            canvas = document.getElementById('jersey-canvas');
+            ctx = canvas.getContext('2d');
+            setupCanvasEvents();
+            clearCanvas();
+        }
+
+        function getTShirtPath() {
+            const path = new Path2D();
+            path.moveTo(130, 45);
+            path.quadraticCurveTo(170, 70, 210, 45);
+            path.lineTo(290, 75);
+            path.lineTo(320, 115);
+            path.lineTo(265, 135);
+            path.lineTo(255, 95);
+            path.lineTo(255, 290);
+            path.lineTo(85, 290);
+            path.lineTo(85, 95);
+            path.lineTo(75, 135);
+            path.lineTo(20, 115);
+            path.lineTo(50, 75);
+            path.closePath();
+            return path;
+        }
+
+        function drawTShirtSilhouette() {
+            ctx.save();
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            ctx.fillStyle = '#090d16';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            const tshirtPath = getTShirtPath();
+            ctx.save();
+            ctx.clip(tshirtPath);
+            ctx.fillStyle = '#0f172a';
+            ctx.fill(tshirtPath);
+            ctx.restore();
+            drawGoldenBorder();
+            ctx.restore();
+        }
+
+        function drawGoldenBorder() {
+            ctx.save();
+            const tshirtPath = getTShirtPath();
+            ctx.strokeStyle = '#f59e0b';
+            ctx.lineWidth = 3;
+            ctx.stroke(tshirtPath);
+            ctx.restore();
+        }
+
+        function saveState() {
+            historyStack.push(ctx.getImageData(0, 0, canvas.width, canvas.height));
+            if(historyStack.length > 20) historyStack.shift();
+        }
+
+        function undoCanvas() {
+            if(historyStack.length > 0) {
+                let imgData = historyStack.pop();
+                ctx.putImageData(imgData, 0, 0);
+            }
+        }
+
+        function clearCanvas() {
+            drawTShirtSilhouette();
+            saveState();
+        }
+
+        function redrawJersey() { if(ctx) drawTShirtSilhouette(); }
+
+        function setTool(tool) {
+            currentTool = tool;
+            ['brush', 'spray', 'fill', 'eraser'].forEach(t => {
+                const btn = document.getElementById(`tool-${t}`);
+                if(t === tool) {
+                    btn.className = "py-2.5 bg-emerald-600 text-white rounded-lg text-xs font-bold transition flex flex-col items-center gap-1";
+                } else {
+                    btn.className = "py-2.5 bg-slate-800 text-slate-300 hover:bg-slate-700 rounded-lg text-xs font-bold transition flex flex-col items-center gap-1";
+                }
+            });
+        }
+
+        function setCurrentColor(col) { currentColor = col; document.getElementById('color-picker').value = col; }
+        function updateBrushSize(val) { brushSize = parseInt(val, 10); document.getElementById('brush-size-val').innerText = brushSize + " px"; }
+
+        function setupCanvasEvents() {
+            const getPos = (e) => {
+                const rect = canvas.getBoundingClientRect();
+                const scaleX = canvas.width / rect.width;
+                const scaleY = canvas.height / rect.height;
+                const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+                const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+                return { 
+                    x: (clientX - rect.left) * scaleX, 
+                    y: (clientY - rect.top) * scaleY 
+                };
+            };
+            const startDraw = (e) => {
+                if(e.cancelable) e.preventDefault();
+                const pos = getPos(e);
+                const tshirtPath = getTShirtPath();
+                if (!ctx.isPointInPath(tshirtPath, pos.x, pos.y)) return;
+                isDrawing = true;
+                if (currentTool === 'fill') {
+                    applyBucketFill(Math.floor(pos.x), Math.floor(pos.y), currentColor);
+                    saveState();
+                    isDrawing = false;
+                    return;
+                }
+                saveState();
+                ctx.beginPath();
+                ctx.moveTo(pos.x, pos.y);
+            };
+            const draw = (e) => {
+                if(!isDrawing || currentTool === 'fill') return;
+                if(e.cancelable) e.preventDefault();
+                const pos = getPos(e);
+                const tshirtPath = getTShirtPath();
+                ctx.save();
+                ctx.clip(tshirtPath);
+                if (currentTool === 'spray') {
+                    for(let i=0; i<10; i++) {
+                        let offsetX = (Math.random() - 0.5) * brushSize * 1.5;
+                        let offsetY = (Math.random() - 0.5) * brushSize * 1.5;
+                        if (ctx.isPointInPath(tshirtPath, pos.x + offsetX, pos.y + offsetY)) {
+                            ctx.fillStyle = currentColor;
+                            ctx.fillRect(pos.x + offsetX, pos.y + offsetY, 2, 2);
+                        }
+                    }
+                } else {
+                    ctx.lineTo(pos.x, pos.y);
+                    ctx.strokeStyle = currentTool === 'eraser' ? '#0f172a' : currentColor;
+                    ctx.lineWidth = brushSize;
+                    ctx.lineCap = 'round';
+                    ctx.lineJoin = 'round';
+                    ctx.stroke();
+                }
+                ctx.restore();
+                drawGoldenBorder();
+            };
+            const stopDraw = (e) => { 
+                if(e.cancelable) e.preventDefault();
+                if(isDrawing) { isDrawing = false; ctx.closePath(); } 
+            };
+
+            canvas.addEventListener('mousedown', startDraw);
+            canvas.addEventListener('mousemove', draw);
+            canvas.addEventListener('mouseup', stopDraw);
+            canvas.addEventListener('mouseleave', stopDraw);
+            canvas.addEventListener('touchstart', startDraw, { passive: false });
+            canvas.addEventListener('touchmove', draw, { passive: false });
+            canvas.addEventListener('touchend', stopDraw, { passive: false });
+        }
+
+        function applyBucketFill(startX, startY, hexColor) {
+            const tshirtPath = getTShirtPath();
+            if (!ctx.isPointInPath(tshirtPath, startX, startY)) return;
+            const imgData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+            const data = imgData.data;
+            const w = canvas.width; const h = canvas.height;
+            const startIndex = (startY * w + startX) * 4;
+            const startR = data[startIndex]; const startG = data[startIndex + 1]; const startB = data[startIndex + 2]; const startA = data[startIndex + 3];
+            if (startR > 200 && startG > 150 && startB < 100) return;
+            const rgb = hexToRgb(hexColor);
+            if (!rgb) return;
+            const matchColor = (idx) => (data[idx] === startR && data[idx + 1] === startG && data[idx + 2] === startB && data[idx + 3] === startA);
+            const queue = [[startX, startY]];
+            const visited = new Uint8Array(w * h);
+            while (queue.length > 0) {
+                const [x, y] = queue.pop();
+                const idx = (y * w + x) * 4;
+                const vIdx = y * w + x;
+                if (x < 0 || x >= w || y < 0 || y >= h) continue;
+                if (visited[vIdx]) continue;
+                if (!ctx.isPointInPath(tshirtPath, x, y)) continue;
+                if (!matchColor(idx)) continue;
+                visited[vIdx] = 1;
+                data[idx] = rgb.r; data[idx + 1] = rgb.g; data[idx + 2] = rgb.b; data[idx + 3] = 255;
+                queue.push([x + 1, y]); queue.push([x - 1, y]); queue.push([x, y + 1]); queue.push([x, y - 1]);
+            }
+            ctx.putImageData(imgData, 0, 0);
+            drawGoldenBorder();
+        }
+
+        function hexToRgb(hex) {
+            let bigint = parseInt(hex.replace("#", ""), 16);
+            return { r: (bigint >> 16) & 255, g: (bigint >> 8) & 255, b: bigint & 255 };
+        }
+
+        function startSeasonGame() {
+            state.jerseys.push({
+                stage: STAGES[state.stageIdx].name,
+                center: CENTERS[state.centerKey].name,
+                img: canvas.toDataURL()
+            });
+            state.events = getEventsForStageAndCenter(STAGES[state.stageIdx], state.centerKey);
+            state.eventIdx = 0;
+            state.yearAchievements = [];
+            state.currentStageEventsDone = {};
+
+            showScreen('screen-game');
+            document.getElementById('game-player-display').innerText = state.playerName;
+            updateUI();
+            renderEvent();
+        }
+
+        function getEventsForStageAndCenter(stageObj, centerKey) {
+            const stageId = stageObj.id;
+            const cleanCenter = centerKey.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+            let candidateKeys = [ `${stageId}_${cleanCenter}` ];
+            if (stageId === 'base1') candidateKeys.push(`lazo1_${cleanCenter}`);
+            else if (stageId === 'base2') candidateKeys.push(`lazo2_${cleanCenter}`);
+
+            let rawList = [];
+            for (let key of candidateKeys) {
+                if (PARSED_EVENTS[key] && PARSED_EVENTS[key].length > 0) {
+                    state.matchedDbKey = key;
+                    rawList = PARSED_EVENTS[key];
+                    break;
+                }
+            }
+            if (rawList.length === 0) {
+                const allKeys = Object.keys(PARSED_EVENTS);
+                const matchedKey = allKeys.find(k => k.toLowerCase().includes(stageId.toLowerCase()) && k.toLowerCase().includes(cleanCenter));
+                if (matchedKey) rawList = PARSED_EVENTS[matchedKey];
+            }
+            let selected = [];
+            if (rawList.length > 0) {
+                const shuffled = [...rawList].sort(() => 0.5 - Math.random());
+                selected = shuffled.slice(0, Math.min(5, shuffled.length));
+            }
+            while (selected.length < 5) {
+                selected.push({
+                    title: `Desafío Pastoral en ${CENTERS[centerKey].name}`,
+                    desc: "Coordina una nueva iniciativa con los participantes y evalúa la mejor estrategia.",
+                    type: "DECISIÓN",
+                    options: [
+                        { text: "Establecer cronogramas y guías detalladas.", effects: { PRE: 4, CG: 2 } },
+                        { text: "Construir la propuesta escuchando a todos.", effects: { EMP: 4, CRE: 2 } },
+                        { text: "Asumir el liderazgo directo del proyecto.", effects: { LID: 5, CG: 1 } }
+                    ]
+                });
+            }
+            return selected;
+        }
+
+        function formatEffects(eff) {
+            if (!eff) return "";
+            let parts = [];
+            for (let k in eff) {
+                let sign = eff[k] > 0 ? "+" : "";
+                parts.push(`${sign}${eff[k]} ${k}`);
+            }
+            return parts.length > 0 ? `(${parts.join(', ')})` : "";
+        }
+
+        function updateUI() {
+            document.getElementById('game-stage-name').innerText = STAGES[state.stageIdx].name;
+            document.getElementById('game-center-name').innerHTML = `<span class="text-lg">${CENTERS[state.centerKey].emoji}</span><span class="text-[10px] text-slate-300 font-bold mt-0.5">${CENTERS[state.centerKey].name}</span>`;
+            
+            let total = 0;
+            ['LID', 'EMP', 'PRE', 'CRE', 'CG'].forEach(k => {
+                document.getElementById(`val-${k.toLowerCase()}`).innerText = state.stats[k];
+                const trendEl = document.getElementById(`trend-${k.toLowerCase()}`);
+                if (state.statTrends[k] === 'up') {
+                    trendEl.className = "absolute top-1 right-1.5 text-[10px] font-bold text-emerald-400";
+                    trendEl.innerText = "▲";
+                } else if (state.statTrends[k] === 'down') {
+                    trendEl.className = "absolute top-1 right-1.5 text-[10px] font-bold text-rose-400";
+                    trendEl.innerText = "▼";
+                } else {
+                    trendEl.innerText = "";
+                }
+                total += state.stats[k];
+            });
+
+            const ovr = Math.floor(total / 5);
+            state.stats.OVR = ovr;
+            document.getElementById('ui-ovr').innerText = ovr;
+            document.getElementById('header-ovr').innerText = ovr;
+            document.getElementById('event-counter').innerText = `${state.eventIdx + 1} / 5`;
+            document.getElementById('event-counter-badge').innerText = `Semana ${state.eventIdx + 1} / 5`;
+            document.getElementById('event-progress-bar').style.width = `${((state.eventIdx + 1) / 5) * 100}%`;
+            let totalTrophies = Object.values(state.achievements).reduce((a, b) => a + b, 0);
+            document.getElementById('header-trophies-panel').innerText = totalTrophies;
+            document.getElementById('header-trophies').innerText = totalTrophies;
+        }
+
+        function renderEvent() {
+            if(state.eventIdx >= 5 || !state.events || state.eventIdx >= state.events.length) {
+                endStage();
+                return;
+            }
+
+            const panel = document.getElementById('event-panel-wrapper');
+            panel.classList.add('opacity-0', 'translate-y-2');
+            setTimeout(() => {
+                const ev = state.events[state.eventIdx];
+                const evType = ev.type || "DECISIÓN";
+                const badge = document.getElementById('event-type-badge');
+                badge.innerText = evType;
+                badge.className = evType === "DECISIÓN" 
+                    ? "px-3 py-1 rounded text-xs font-bold tracking-widest uppercase bg-blue-900/50 text-blue-400 border border-blue-700"
+                    : "px-3 py-1 rounded text-xs font-bold tracking-widest uppercase bg-purple-900/50 text-purple-400 border border-purple-700";
+
+                document.getElementById('event-title').innerHTML = `<b>${ev.title || "Desafío Pastoral"}</b>`;
+                document.getElementById('event-desc').innerText = ev.desc || "Situación en desarrollo.";
+
+                const container = document.getElementById('event-options-container');
+                container.innerHTML = "";
+
+                if (evType === "DECISIÓN" && ev.options) {
+                    ev.options.forEach((opt) => {
+                        const btn = document.createElement('button');
+                        btn.className = "w-full text-left p-4 bg-slate-900 hover:bg-slate-800/80 border border-slate-700/80 hover:border-emerald-500/60 rounded-xl transition-all flex flex-col group";
+                        let effStr = formatEffects(opt.effects);
+                        btn.innerHTML = `<span class="text-sm text-slate-200 font-medium group-hover:text-white mb-1">${opt.text} <span class="text-emerald-400 font-bold">${effStr}</span></span>`;
+                        btn.onclick = () => selectDecisionOption(opt.effects);
+                        container.appendChild(btn);
+                    });
+                } else {
+                    const chance = ev.chance || 50;
+                    const failChance = 100 - chance;
+                    const sEff = formatEffects(ev.success?.effects);
+                    const fEff = formatEffects(ev.failure?.effects);
+
+                    const btn = document.createElement('button');
+                    btn.className = "w-full p-4 bg-emerald-600 hover:bg-emerald-500 text-slate-950 rounded-xl transition shadow-lg shadow-emerald-600/20 text-sm flex flex-col items-center";
+                    btn.innerHTML = `
+                        <div class="font-bold uppercase tracking-wider mb-3 text-lg">Tomar la responsabilidad</div>
+                        <div class="text-sm bg-slate-900/40 p-3 rounded-lg w-full text-slate-100 font-medium text-left">
+                            <div class="mb-2"><b>${chance}%</b> │ ${ev.success?.text || 'Éxito'} <span class="font-bold text-emerald-300">${sEff}</span></div>
+                            <div><b>${failChance}%</b> │ ${ev.failure?.text || 'Fracaso'} <span class="font-bold text-rose-300">${fEff}</span></div>
+                        </div>
+                    `;
+                    btn.onclick = () => resolveChanceEvent(ev);
+                    container.appendChild(btn);
+                }
+                updateUI();
+                panel.classList.remove('opacity-0', 'translate-y-2');
+            }, 200);
+        }
+
+        function selectDecisionOption(effects) {
+            applyEffects(effects);
+            state.eventIdx++;
+            renderEvent();
+        }
+
+        function resolveChanceEvent(ev) {
+            const roll = Math.floor(Math.random() * 100) + 1;
+            const success = roll <= (ev.chance || 50);
+            const res = success ? ev.success : ev.failure;
+
+            applyEffects(res.effects);
+            showFeedback(
+                success ? "¡Éxito en el Reto!" : "¡Resultado Adverso!", 
+                res.text, 
+                success ? "🌟" : "⚠️",
+                !success
+            );
+        }
+
+        function applyEffects(effects) {
+            if (!effects) return;
+            for (let k in effects) {
+                if (state.stats[k] !== undefined) {
+                    let oldVal = state.stats[k];
+                    state.stats[k] = Math.min(Math.max(state.stats[k] + effects[k], 10), 100);
+                    if (state.stats[k] > oldVal) state.statTrends[k] = 'up';
+                    else if (state.stats[k] < oldVal) state.statTrends[k] = 'down';
+                }
+            }
+            updateUI();
+        }
+
+        function showFeedback(title, desc, icon, isNegative) {
+            const card = document.getElementById('feedback-card');
+            card.className = isNegative 
+                ? "bg-slate-900/95 backdrop-blur-md max-w-lg w-full max-h-[95vh] overflow-y-auto p-6 text-center border border-rose-500/80 rounded-2xl shadow-2xl pointer-events-auto transform scale-95 opacity-0 transition-all duration-300 glow-rose"
+                : "bg-slate-900/95 backdrop-blur-md max-w-lg w-full max-h-[95vh] overflow-y-auto p-6 text-center border border-emerald-500/50 rounded-2xl shadow-2xl pointer-events-auto transform scale-95 opacity-0 transition-all duration-300 glow-emerald";
+            
+            document.getElementById('feedback-icon').innerText = icon;
+            document.getElementById('feedback-title').innerText = title;
+            document.getElementById('feedback-desc').innerText = desc;
+            
+            const modal = document.getElementById('modal-feedback');
+            modal.classList.remove('hidden');
+            setTimeout(() => {
+                card.classList.remove('scale-95', 'opacity-0');
+                card.classList.add('scale-100', 'opacity-100');
+            }, 10);
+        }
+
+        function nextEvent() {
+            const card = document.getElementById('feedback-card');
+            card.classList.remove('scale-100', 'opacity-100');
+            card.classList.add('scale-95', 'opacity-0');
+            setTimeout(() => {
+                document.getElementById('modal-feedback').classList.add('hidden');
+                
+                const currentStageId = STAGES[state.stageIdx].id;
+                if (currentStageId === 'base2' || currentStageId.startsWith('lazo')) {
+                    const keys = ['LID', 'EMP', 'PRE', 'CRE', 'CG'];
+                    const randKey = keys[Math.floor(Math.random() * keys.length)];
+                    state.stats[randKey] = Math.max(state.stats[randKey] - 1, 10);
+                    state.statTrends[randKey] = 'down';
+                }
+
+                state.eventIdx++;
+                if(!checkRandomSpecialEvents()) {
+                    renderEvent();
+                }
+            }, 250);
+        }
+
+        function checkRandomSpecialEvents() {
+            const stageId = STAGES[state.stageIdx].id;
+            const rand = Math.random() * 100;
+            const ovr = state.stats.OVR;
+            if (!state.currentStageEventsDone) state.currentStageEventsDone = {};
+
+            const isLazoStage = stageId.startsWith('lazo');
+            const mentionChance = isLazoStage ? 25 : 18;
+            const distritalChance = isLazoStage ? (ovr >= 60 ? 45 : 15) : (ovr >= 60 ? 38 : 10);
+            const torneoChance = isLazoStage ? 30 : 18;
+            const directorChance = isLazoStage ? 20 : 0;
+            const animadorChance = isLazoStage ? 20 : 0;
+
+            if (stageId === 'torre') {
+                if (rand < 18 && !state.currentStageEventsDone.mencion) {
+                    state.currentStageEventsDone.mencion = true;
+                    triggerMinigameTicTacToe("Mención Honorífica", "Gana el 3 en raya para asegurar tu Mención Honorífica.", "mencionHonorifica");
+                    return true;
+                } else if (rand < 18 + distritalChance && !state.currentStageEventsDone.distrital) {
+                    state.currentStageEventsDone.distrital = true;
+                    triggerMinigameSequence("Campamento de Torres", "Memoriza la secuencia numérica (1.5s) para asegurar el viaje.", "eventosDistritales");
+                    return true;
+                } else if (rand < 18 + distritalChance + torneoChance && !state.currentStageEventsDone.torneo) {
+                    state.currentStageEventsDone.torneo = true;
+                    triggerMinigamePenalty("Torneo Intercentros", "Elige una casilla del arco para anotar y ganar la copa.", "torneosIntercentros");
+                    return true;
+                } else if (rand < 18 + distritalChance + torneoChance + 35 && !state.currentStageEventsDone.recuerdo) {
+                    state.currentStageEventsDone.recuerdo = true;
+                    triggerMinigameRoulette("Regalo de un Niño", "Un niño del centro te regala un dibujo. Gira la ruleta.", "recuerdos");
+                    return true;
+                }
+            } else if (stageId === 'leon') {
+                if (state.eventIdx === 0 && rand < 15 && !state.currentStageEventsDone.espal) {
+                    state.currentStageEventsDone.espal = true;
+                    triggerMinigameRoulette("Bono de Espal", "¡Oportunidad de bono de Espal! Gira la ruleta.", "recuerdos");
+                    return true;
+                }
+                if (rand < mentionChance && !state.currentStageEventsDone.mencion) {
+                    state.currentStageEventsDone.mencion = true;
+                    triggerMinigameTicTacToe("Mención Honorífica", "Vence al bot en 3 en raya para obtener tu mención.", "mencionHonorifica");
+                    return true;
+                } else if (rand < mentionChance + distritalChance && !state.currentStageEventsDone.distrital) {
+                    state.currentStageEventsDone.distrital = true;
+                    const distritalEvents = ["Escanim", "Politeia", "Escat"];
+                    const chosenEvent = distritalEvents[Math.floor(Math.random() * distritalEvents.length)];
+                    triggerMinigameSequence(`Evento Distrital: ${chosenEvent}`, `Memoriza la secuencia numérica para viajar a ${chosenEvent}.`, "eventosDistritales");
+                    return true;
+                } else if (rand < mentionChance + distritalChance + torneoChance && !state.currentStageEventsDone.torneo) {
+                    state.currentStageEventsDone.torneo = true;
+                    triggerMinigamePenalty("Torneo Intercentros", "Anota en los penaltis del torneo.", "torneosIntercentros");
+                    return true;
+                } else if (rand < mentionChance + distritalChance + torneoChance + 35 && !state.currentStageEventsDone.recuerdo) {
+                    state.currentStageEventsDone.recuerdo = true;
+                    triggerMinigameRoulette("Dibujo de un Niño", "Un niño te entrega su dibujo.", "recuerdos");
+                    return true;
+                }
+            } else if (stageId === 'base1' || stageId === 'base2') {
+                if (rand < mentionChance && !state.currentStageEventsDone.mencion) {
+                    state.currentStageEventsDone.mencion = true;
+                    triggerMinigameTicTacToe("Mención Honorífica", "Gana el 3 en raya para la mención.", "mencionHonorifica");
+                    return true;
+                } else if (rand < mentionChance + distritalChance && !state.currentStageEventsDone.distrital) {
+                    state.currentStageEventsDone.distrital = true;
+                    const distritalEvents = ["Escanim", "Politeia", "Escat"];
+                    const chosenEvent = distritalEvents[Math.floor(Math.random() * distritalEvents.length)];
+                    triggerMinigameSequence(`Evento Distrital: ${chosenEvent}`, `Memoriza la secuencia numérica para viajar a ${chosenEvent}.`, "eventosDistritales");
+                    return true;
+                } else if (rand < mentionChance + distritalChance + torneoChance && !state.currentStageEventsDone.torneo) {
+                    state.currentStageEventsDone.torneo = true;
+                    triggerMinigamePenalty("Torneo Intercentros", "Tanda de penaltis del torneo.", "torneosIntercentros");
+                    return true;
+                } else if (rand < mentionChance + distritalChance + torneoChance + 35 && !state.currentStageEventsDone.recuerdo) {
+                    state.currentStageEventsDone.recuerdo = true;
+                    triggerMinigameRoulette("Dibujo de Regalo", "Un niño te regala un dibujo.", "recuerdos");
+                    return true;
+                } else if (rand < mentionChance + distritalChance + torneoChance + 35 + 20 && !state.currentStageEventsDone.leonAgradece) {
+                    state.currentStageEventsDone.leonAgradece = true;
+                    triggerMinigameRoulette("Agradecimiento de un León", "Recuerdo de un León.", "recuerdos");
+                    return true;
+                } else if (rand < mentionChance + distritalChance + torneoChance + 35 + 20 + 15 && !state.currentStageEventsDone.simbolo) {
+                    state.currentStageEventsDone.simbolo = true;
+                    triggerMinigameRoulette("Símbolo de Pastoral", "Llevar el Símbolo de Pastoral.", "recuerdos");
+                    return true;
+                }
+            } else if (isLazoStage) {
+                if (rand < torneoChance && !state.currentStageEventsDone.torneo) {
+                    state.currentStageEventsDone.torneo = true;
+                    triggerMinigamePenalty("Torneo Intercentros", "Anota el penalti en el Torneo Intercentros.", "torneosIntercentros");
+                    return true;
+                } else if (rand < torneoChance + directorChance && !state.currentStageEventsDone.director) {
+                    state.currentStageEventsDone.director = true;
+                    const selectedDirector = Math.random() < 0.5 ? "Director de Espal" : "Director de Lunada";
+                    triggerMinigameConnect4(selectedDirector, `Gana el 4 en raya contra la IA para asumir el cargo de ${selectedDirector}.`, "direccionesEventos");
+                    return true;
+                } else if (rand < torneoChance + directorChance + animadorChance && !state.currentStageEventsDone.animadorDistrital) {
+                    state.currentStageEventsDone.animadorDistrital = true;
+                    const distritalEvents = ["Escanim", "Politeia", "Escat"];
+                    const chosenEvent = distritalEvents[Math.floor(Math.random() * distritalEvents.length)];
+                    triggerMinigameSequence(`Animador Distrital de ${chosenEvent}`, `Memoriza la secuencia numérica (1.5s) para asegurar el puesto de Animador de ${chosenEvent}.`, "eventosDistritales");
+                    return true;
+                } else if (rand < torneoChance + directorChance + animadorChance + mentionChance && !state.currentStageEventsDone.mencion) {
+                    state.currentStageEventsDone.mencion = true;
+                    triggerMinigameTicTacToe("Mención Honorífica", "Gana el 3 en raya.", "mencionHonorifica");
+                    return true;
+                } else if (rand < torneoChance + directorChance + animadorChance + mentionChance + 30 && !state.currentStageEventsDone.recuerdo) {
+                    state.currentStageEventsDone.recuerdo = true;
+                    triggerMinigameRoulette("Dibujo de Agradecimiento", "Un niño te regala su dibujo.", "recuerdos");
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        // --- MINIJUEGO 1: SECUENCIA NUMÉRICA ---
+        function triggerMinigameSequence(title, desc, rewardKey) {
+            const digits = Array.from({length: 5}, () => Math.floor(Math.random() * 9) + 1);
+
+            document.getElementById('special-event-icon').innerText = "🧠";
+            document.getElementById('special-event-title').innerText = title;
+            document.getElementById('special-event-desc').innerText = desc;
+
+            const box = document.getElementById('special-minigame-container');
+            box.classList.remove('hidden');
+            box.innerHTML = `
+                <div class="text-center space-y-4">
+                    <p class="text-xs text-amber-400 font-bold uppercase">Memoriza los 5 números (1.5 segundos):</p>
+                    <div id="seq-display" class="text-3xl font-mono font-bold tracking-widest text-emerald-400 bg-slate-950 py-3 rounded-xl border border-emerald-500/40">
+                        ${digits.join('')}
+                    </div>
+                    <div id="seq-inputs" class="hidden space-y-3">
+                        <p class="text-xs text-slate-300">Ingresa la secuencia:</p>
+                        <div id="seq-user-val" class="text-2xl font-mono font-bold tracking-widest text-white min-h-[36px] bg-slate-950 py-1 rounded border border-slate-800"></div>
+                        <div class="grid grid-cols-3 gap-2 max-w-[200px] mx-auto">
+                            ${[1,2,3,4,5,6,7,8,9].map(n => `<button onclick="typeSeqDigit(${n}, [${digits.join(',')}], '${rewardKey}')" class="py-2 sm:py-3 bg-slate-800 hover:bg-emerald-600 text-white font-mono font-bold rounded text-lg transition">${n}</button>`).join('')}
+                            <button onclick="typeSeqDigit(0, [${digits.join(',')}], '${rewardKey}')" class="py-2 sm:py-3 bg-slate-800 hover:bg-emerald-600 text-white font-mono font-bold rounded text-lg transition">0</button>
+                            <button onclick="deleteSeqDigit()" class="py-2 sm:py-3 col-span-2 bg-rose-900/50 hover:bg-rose-600 text-white font-mono font-bold rounded text-sm transition border border-rose-800">⌫ Borrar</button>
+                        </div>
+                    </div>
+                </div>
+            `;
+            const btn = document.getElementById('special-event-btn');
+            btn.innerText = "Memorizando...";
+            btn.disabled = true;
+            btn.className = "w-full py-3 bg-slate-800 text-slate-500 font-bold rounded-xl transition uppercase tracking-wider text-xs cursor-not-allowed";
+            document.getElementById('modal-special-event').classList.remove('hidden');
+
+            setTimeout(() => {
+                const disp = document.getElementById('seq-display');
+                if(disp) { disp.innerText = "?????"; document.getElementById('seq-inputs').classList.remove('hidden'); }
+            }, 1500);
+        }
+
+        let currentSeqInput = [];
+        function typeSeqDigit(n, targetSeq, rewardKey) {
+            currentSeqInput.push(n);
+            document.getElementById('seq-user-val').innerText = currentSeqInput.join('');
+            if (currentSeqInput.length === 5) {
+                const win = currentSeqInput.every((val, idx) => val === targetSeq[idx]);
+                const disp = document.getElementById('seq-user-val');
+                const btn = document.getElementById('special-event-btn');
+                if (win) {
+                    disp.className = "text-xl font-mono font-bold text-emerald-400 bg-slate-950 py-1 rounded border border-emerald-500";
+                    disp.innerText = `¡CORRECTO! (${targetSeq.join('')})`;
+                    addAchievement(rewardKey);
+                } else {
+                    disp.className = "text-xl font-mono font-bold text-rose-400 bg-slate-950 py-1 rounded border border-rose-500";
+                    disp.innerText = `INCORRECTO (Era: ${targetSeq.join('')})`;
+                }
+                btn.innerText = win ? "¡Reclamar Logro! ➔" : "Continuar ➔";
+                btn.disabled = false;
+                btn.className = "w-full py-3 bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold rounded-xl transition uppercase tracking-wider text-xs cursor-pointer";
+                btn.onclick = () => { currentSeqInput = []; closeSpecialEventModal(); };
+            }
+        }
+        function deleteSeqDigit() {
+            if (currentSeqInput.length > 0) {
+                currentSeqInput.pop();
+                const el = document.getElementById('seq-user-val');
+                if(el) el.innerText = currentSeqInput.join('');
+            }
+        }
+
+        // --- MINIJUEGO 2: TRES EN RAYA INTELIGENTE ---
+        let tttBoard = Array(9).fill(null);
+        let tttRewardKey = '';
+        function triggerMinigameTicTacToe(title, desc, rewardKey) {
+            tttBoard = Array(9).fill(null);
+            tttRewardKey = rewardKey;
+
+            document.getElementById('special-event-icon').innerText = "⚔️";
+            document.getElementById('special-event-title').innerText = title;
+            document.getElementById('special-event-desc').innerText = desc;
+
+            const box = document.getElementById('special-minigame-container');
+            box.classList.remove('hidden');
+            renderTTTBoard();
+
+            const btn = document.getElementById('special-event-btn');
+            btn.innerText = "Jugando 3 en Raya...";
+            btn.disabled = true;
+            btn.className = "w-full py-3 bg-slate-800 text-slate-500 font-bold rounded-xl transition uppercase tracking-wider text-xs cursor-not-allowed";
+            document.getElementById('modal-special-event').classList.remove('hidden');
+
+            if (Math.random() < 0.6) {
+                setTimeout(() => {
+                    let botFirstMoves = [0, 2, 4, 6, 8];
+                    let m = botFirstMoves[Math.floor(Math.random() * botFirstMoves.length)];
+                    tttBoard[m] = 'O';
+                    renderTTTBoard();
+                }, 400);
+            }
+        }
+
+        function renderTTTBoard() {
+            const box = document.getElementById('special-minigame-container');
+            box.innerHTML = `
+                <div class="text-center space-y-3">
+                    <p class="text-xs text-amber-400 font-bold uppercase">Tu eres ❌ | Bot es ⭕</p>
+                    <div class="grid grid-cols-3 gap-2 w-48 mx-auto">
+                        ${tttBoard.map((val, idx) => `
+                            <button onclick="playTTTMove(${idx})" class="w-14 h-14 bg-slate-950 hover:bg-slate-800 border border-slate-700 text-2xl font-bold flex items-center justify-center rounded-lg transition">
+                                ${val === 'X' ? '❌' : val === 'O' ? '⭕' : ''}
+                            </button>
+                        `).join('')}
+                    </div>
+                    <div id="ttt-status" class="text-xs font-mono font-bold mt-2"></div>
+                </div>
+            `;
+        }
+
+        function playTTTMove(idx) {
+            if (tttBoard[idx] !== null) return;
+            tttBoard[idx] = 'X';
+            renderTTTBoard();
+
+            if (checkTTTWinner('X')) { endTTTGame(true, "¡Ganaste el 3 en raya!"); return; }
+            if (tttBoard.every(c => c !== null)) { endTTTGame(true, "¡Empate técnico! Logro asegurado."); return; }
+
+            let botMove = findBestTTTMove('O');
+            if (botMove === -1) botMove = findBestTTTMove('X');
+            if (botMove === -1) {
+                let empty = tttBoard.map((v, i) => v === null ? i : null).filter(v => v !== null);
+                botMove = empty[Math.floor(Math.random() * empty.length)];
+            }
+
+            if (botMove !== undefined && botMove !== -1) {
+                tttBoard[botMove] = 'O';
+                renderTTTBoard();
+            }
+
+            if (checkTTTWinner('O')) { endTTTGame(false, "El bot ganó. Perdiste el logro."); return; }
+            if (tttBoard.every(c => c !== null)) { endTTTGame(true, "¡Empate! Logro asegurado."); }
+        }
+
+        function findBestTTTMove(player) {
+            const wins = [[0,1,2],[3,4,5],[6,7,8],[0,3,6],[1,4,7],[2,5,8],[0,4,8],[2,4,6]];
+            for (let w of wins) {
+                let vals = w.map(i => tttBoard[i]);
+                if (vals.filter(v => v === player).length === 2 && vals.includes(null)) {
+                    return w[vals.indexOf(null)];
+                }
+            }
+            return -1;
+        }
+
+        function checkTTTWinner(player) {
+            const wins = [[0,1,2],[3,4,5],[6,7,8],[0,3,6],[1,4,7],[2,5,8],[0,4,8],[2,4,6]];
+            return wins.some(w => w.every(i => tttBoard[i] === player));
+        }
+
+        function endTTTGame(win, msg) {
+            const status = document.getElementById('ttt-status');
+            status.className = win ? "text-xs font-mono font-bold mt-2 text-emerald-400" : "text-xs font-mono font-bold mt-2 text-rose-400";
+            status.innerText = msg;
+            if (win) addAchievement(tttRewardKey);
+
+            const btn = document.getElementById('special-event-btn');
+            btn.innerText = win ? "¡Reclamar Logro! ➔" : "Continuar ➔";
+            btn.disabled = false;
+            btn.className = "w-full py-3 bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold rounded-xl transition uppercase tracking-wider text-xs cursor-pointer";
+            btn.onclick = closeSpecialEventModal;
+        }
+
+        // --- MINIJUEGO 3: PENALES BUSCAMINAS ---
+        function triggerMinigamePenalty(title, desc, rewardKey) {
+            document.getElementById('special-event-icon').innerText = "⚽";
+            document.getElementById('special-event-title').innerText = title;
+            document.getElementById('special-event-desc').innerText = desc;
+
+            const cards = ['GOL', 'GOL', 'GOL', 'ARQUERO', 'ARQUERO'].sort(() => 0.5 - Math.random());
+            const box = document.getElementById('special-minigame-container');
+            box.classList.remove('hidden');
+            box.innerHTML = `
+                <div class="text-center space-y-3">
+                    <p class="text-xs text-amber-400 font-bold uppercase">Elige 1 de las 5 casillas del arco (3 Goles, 2 Arqueros):</p>
+                    <div class="grid grid-cols-5 gap-2">
+                        ${cards.map((type, idx) => `
+                            <button onclick="revealPenaltyCard(${idx}, '${type}', '${rewardKey}')" id="pen-btn-${idx}" class="py-4 bg-slate-950 hover:bg-slate-800 border border-slate-700 text-xl font-bold rounded-lg transition">
+                                ⚽
+                            </button>
+                        `).join('')}
+                    </div>
+                    <div id="pen-status" class="text-xs font-mono font-bold mt-2"></div>
+                </div>
+            `;
+            const btn = document.getElementById('special-event-btn');
+            btn.innerText = "Patea el Penalti...";
+            btn.disabled = true;
+            btn.className = "w-full py-3 bg-slate-800 text-slate-500 font-bold rounded-xl transition uppercase tracking-wider text-xs cursor-not-allowed";
+            document.getElementById('modal-special-event').classList.remove('hidden');
+        }
+
+        function revealPenaltyCard(idx, type, rewardKey) {
+            const btnChoice = document.getElementById(`pen-btn-${idx}`);
+            const status = document.getElementById('pen-status');
+            for(let i=0; i<5; i++) {
+                const b = document.getElementById(`pen-btn-${i}`);
+                if(b) b.disabled = true;
+            }
+            if (type === 'GOL') {
+                btnChoice.innerText = "⚽ GOL!";
+                btnChoice.className = "py-4 bg-emerald-950 border border-emerald-500 text-emerald-400 text-sm font-bold rounded-lg";
+                status.className = "text-xs font-mono font-bold mt-2 text-emerald-400";
+                status.innerText = "¡GOOOOLAZO! Tu centro gana el Torneo Intercentros.";
+                addAchievement(rewardKey);
+            } else {
+                btnChoice.innerText = "🧤 ATAJADO";
+                btnChoice.className = "py-4 bg-rose-950 border border-rose-500 text-rose-400 text-sm font-bold rounded-lg";
+                status.className = "text-xs font-mono font-bold mt-2 text-rose-400";
+                status.innerText = "¡Atajado! Perdiste la copa del torneo.";
+            }
+            const mainBtn = document.getElementById('special-event-btn');
+            mainBtn.innerText = type === 'GOL' ? "¡Reclamar Copa! ➔" : "Continuar ➔";
+            mainBtn.disabled = false;
+            mainBtn.className = "w-full py-3 bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold rounded-xl transition uppercase tracking-wider text-xs cursor-pointer";
+            mainBtn.onclick = closeSpecialEventModal;
+        }
+
+        // --- MINIJUEGO 4: RULETA ---
+        function triggerMinigameRoulette(title, desc, rewardKey) {
+            document.getElementById('special-event-icon').innerText = "🎰";
+            document.getElementById('special-event-title').innerText = title;
+            document.getElementById('special-event-desc').innerText = desc;
+
+            const box = document.getElementById('special-minigame-container');
+            box.classList.remove('hidden');
+            box.innerHTML = `
+                <div class="text-center space-y-4">
+                    <p class="text-xs text-amber-400 font-bold uppercase">Probabilidades: 70% Ganar | 15% Perder | 15% Volver a Tirar</p>
+                    <div id="roulette-wheel" class="w-24 h-24 rounded-full border-4 border-dashed border-emerald-400 flex items-center justify-center mx-auto text-3xl font-bold bg-slate-950 text-white transition-all duration-700">
+                        🎁
+                    </div>
+                    <button id="spin-btn" onclick="spinRoulette('${rewardKey}')" class="py-2.5 px-6 bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold rounded-xl uppercase tracking-wider transition">
+                        🎰 Girar Ruleta
+                    </button>
+                    <div id="roulette-result" class="text-xs font-mono font-bold mt-1"></div>
+                </div>
+            `;
+            const btn = document.getElementById('special-event-btn');
+            btn.innerText = "Gira la ruleta...";
+            btn.disabled = true;
+            btn.className = "w-full py-3 bg-slate-800 text-slate-500 font-bold rounded-xl transition uppercase tracking-wider text-xs cursor-not-allowed";
+            document.getElementById('modal-special-event').classList.remove('hidden');
+        }
+
+        function spinRoulette(rewardKey) {
+            const wheel = document.getElementById('roulette-wheel');
+            const resDiv = document.getElementById('roulette-result');
+            const spinBtn = document.getElementById('spin-btn');
+            spinBtn.disabled = true;
+            spinBtn.className = "py-2.5 px-6 bg-slate-800 text-slate-500 text-xs font-bold rounded-xl uppercase cursor-not-allowed";
+            wheel.classList.add('animate-spin');
+
+            setTimeout(() => {
+                wheel.classList.remove('animate-spin');
+                const rand = Math.random() * 100;
+                if (rand < 70) {
+                    wheel.innerText = "✨";
+                    wheel.className = "w-24 h-24 rounded-full border-4 border-emerald-500 flex items-center justify-center mx-auto text-3xl bg-emerald-950 text-emerald-400";
+                    resDiv.className = "text-xs font-mono font-bold mt-1 text-emerald-400";
+                    resDiv.innerText = "¡GANASTE! Recibes el recuerdo.";
+                    addAchievement(rewardKey);
+                    enableSpecialCloseBtn("¡Reclamar Recuerdo! ➔");
+                } else if (rand < 85) {
+                    wheel.innerText = "❌";
+                    wheel.className = "w-24 h-24 rounded-full border-4 border-rose-500 flex items-center justify-center mx-auto text-3xl bg-rose-950 text-rose-400";
+                    resDiv.className = "text-xs font-mono font-bold mt-1 text-rose-400";
+                    resDiv.innerText = "PERDISTE. No obtuviste el recuerdo.";
+                    enableSpecialCloseBtn("Continuar ➔");
+                } else {
+                    wheel.innerText = "🔄";
+                    wheel.className = "w-24 h-24 rounded-full border-4 border-amber-500 flex items-center justify-center mx-auto text-3xl bg-amber-950 text-amber-400";
+                    resDiv.className = "text-xs font-mono font-bold mt-1 text-amber-400";
+                    resDiv.innerText = "¡OTRA OPORTUNIDAD!";
+                    spinBtn.disabled = false;
+                    spinBtn.className = "py-2.5 px-6 bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold rounded-xl uppercase tracking-wider transition";
+                }
+            }, 800);
+        }
+
+        function enableSpecialCloseBtn(text) {
+            const btn = document.getElementById('special-event-btn');
+            btn.innerText = text;
+            btn.disabled = false;
+            btn.className = "w-full py-3 bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold rounded-xl transition uppercase tracking-wider text-xs cursor-pointer";
+            btn.onclick = closeSpecialEventModal;
+        }
+
+        // --- MINIJUEGO 5: 4 EN RAYA CON REINICIO AUTOMÁTICO ---
+        let c4Grid = Array(5).fill(null).map(() => Array(6).fill(null));
+        let c4RewardKey = '';
+        function triggerMinigameConnect4(title, desc, rewardKey) {
+            c4Grid = Array(5).fill(null).map(() => Array(6).fill(null));
+            c4RewardKey = rewardKey;
+
+            document.getElementById('special-event-icon').innerText = "👑";
+            document.getElementById('special-event-title').innerText = title;
+            document.getElementById('special-event-desc').innerText = desc;
+
+            const box = document.getElementById('special-minigame-container');
+            box.classList.remove('hidden');
+            renderC4Grid();
+
+            const btn = document.getElementById('special-event-btn');
+            btn.innerText = "Jugando 4 en Raya...";
+            btn.disabled = true;
+            btn.className = "w-full py-3 bg-slate-800 text-slate-500 font-bold rounded-xl transition uppercase tracking-wider text-xs cursor-not-allowed";
+            document.getElementById('modal-special-event').classList.remove('hidden');
+
+            if (Math.random() < 0.6) {
+                setTimeout(() => {
+                    let col = Math.floor(Math.random() * 6);
+                    c4Grid[4][col] = 'B';
+                    renderC4Grid();
+                }, 400);
+            }
+        }
+
+        function renderC4Grid() {
+            const box = document.getElementById('special-minigame-container');
+            box.innerHTML = `
+                <div class="text-center space-y-3">
+                    <p class="text-xs text-amber-400 font-bold uppercase">Tu 🔴 | Bot 🟡 (Haz clic en una columna)</p>
+                    <div class="bg-slate-950 p-3 rounded-xl border border-slate-800 inline-block mx-auto">
+                        <div class="grid grid-cols-6 gap-1.5">
+                            ${Array.from({length: 6}).map((_, col) => `
+                                <button onclick="dropC4Piece(${col})" class="w-7 h-7 sm:w-8 sm:h-8 bg-slate-900 hover:bg-slate-800 text-xs font-bold text-slate-400 rounded-full flex items-center justify-center transition">
+                                    ⬇️
+                                </button>
+                            `).join('')}
+                        </div>
+                        <div class="grid grid-cols-6 gap-1.5 mt-2">
+                            ${c4Grid.map(row => row.map(cell => `
+                                <div class="w-7 h-7 sm:w-8 sm:h-8 rounded-full border border-slate-800 flex items-center justify-center text-sm ${cell === 'P' ? 'bg-rose-500' : cell === 'B' ? 'bg-amber-400' : 'bg-slate-900'}">
+                                </div>
+                            `).join('')).join('')}
+                        </div>
+                    </div>
+                    <div id="c4-status" class="text-xs font-mono font-bold mt-1"></div>
+                </div>
+            `;
+        }
+
+        function dropC4Piece(col) {
+            let rowToPlace = -1;
+            for (let r = 4; r >= 0; r--) {
+                if (c4Grid[r][col] === null) { rowToPlace = r; break; }
+            }
+            if (rowToPlace === -1) return;
+
+            c4Grid[rowToPlace][col] = 'P';
+            renderC4Grid();
+
+            if (checkC4Win('P')) { endC4Game(true, "¡Conectaste 4! Asumes la Dirección."); return; }
+
+            let isFull = c4Grid.every(row => row.every(cell => cell !== null));
+            if (isFull) {
+                document.getElementById('c4-status').innerText = "Tablero lleno sin ganador. ¡Reiniciando minijuego!";
+                setTimeout(() => {
+                    c4Grid = Array(5).fill(null).map(() => Array(6).fill(null));
+                    renderC4Grid();
+                }, 1200);
+                return;
+            }
+
+            let validCols = [];
+            for (let c = 0; c < 6; c++) { if (c4Grid[0][c] === null) validCols.push(c); }
+            if (validCols.length > 0) {
+                let botCol = validCols[Math.floor(Math.random() * validCols.length)];
+                let botRow = -1;
+                for (let r = 4; r >= 0; r--) { if (c4Grid[r][botCol] === null) { botRow = r; break; } }
+                c4Grid[botRow][botCol] = 'B';
+                renderC4Grid();
+                if (checkC4Win('B')) { endC4Game(false, "El bot ganó el 4 en raya."); return; }
+            }
+        }
+
+        function checkC4Win(player) {
+            for (let r = 0; r < 5; r++) {
+                for (let c = 0; c < 3; c++) {
+                    if (c4Grid[r][c] === player && c4Grid[r][c+1] === player && c4Grid[r][c+2] === player && c4Grid[r][c+3] === player) return true;
+                }
+            }
+            for (let r = 0; r < 2; r++) {
+                for (let c = 0; c < 6; c++) {
+                    if (c4Grid[r][c] === player && c4Grid[r+1][c] === player && c4Grid[r+2][c] === player && c4Grid[r+3][c] === player) return true;
+                }
+            }
+            for (let r = 0; r < 2; r++) {
+                for (let c = 0; c < 3; c++) {
+                    if (c4Grid[r][c] === player && c4Grid[r+1][c+1] === player && c4Grid[r+2][c+2] === player && c4Grid[r+3][c+3] === player) return true;
+                }
+            }
+            for (let r = 3; r < 5; r++) {
+                for (let c = 0; c < 3; c++) {
+                    if (c4Grid[r][c] === player && c4Grid[r-1][c+1] === player && c4Grid[r-2][c+2] === player && c4Grid[r-3][c+3] === player) return true;
+                }
+            }
+            return false;
+        }
+
+        function endC4Game(win, msg) {
+            const status = document.getElementById('c4-status');
+            status.className = win ? "text-xs font-mono font-bold mt-1 text-emerald-400" : "text-xs font-mono font-bold mt-1 text-rose-400";
+            status.innerText = msg;
+            if (win) addAchievement(c4RewardKey);
+
+            const btn = document.getElementById('special-event-btn');
+            btn.innerText = win ? "¡Reclamar Dirección! ➔" : "Continuar ➔";
+            btn.disabled = false;
+            btn.className = "w-full py-3 bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold rounded-xl transition uppercase tracking-wider text-xs cursor-pointer";
+            btn.onclick = closeSpecialEventModal;
+        }
+
+        function addAchievement(key) {
+            if (key && state.achievements[key] !== undefined) {
+                state.achievements[key]++;
+                let nameMap = {
+                    mencionHonorifica: '🎖️ Mención Honorífica',
+                    eventosDistritales: '✈️ Evento Distrital',
+                    torneosIntercentros: '⚽ Torneo Intercentros',
+                    recuerdos: '🎨 Recuerdo',
+                    direccionesEventos: '🌟 Dirección de Evento'
+                };
+                state.yearAchievements.push(nameMap[key] || key);
+                let totalTrophies = Object.values(state.achievements).reduce((a, b) => a + b, 0);
+                document.getElementById('header-trophies-panel').innerText = totalTrophies;
+                document.getElementById('header-trophies').innerText = totalTrophies;
+            }
+        }
+
+        function closeSpecialEventModal() {
+            document.getElementById('modal-special-event').classList.add('hidden');
+            renderEvent();
+        }
+
+        function endStage() {
+            document.getElementById('summary-stage').innerText = STAGES[state.stageIdx].name;
+            document.getElementById('summary-center').innerHTML = `<span class="text-xl">${CENTERS[state.centerKey].emoji}</span> ${CENTERS[state.centerKey].name}`;
+            document.getElementById('summary-ovr').innerText = state.stats.OVR;
+            
+            if(state.jerseys.length > 0) {
+                document.getElementById('summary-jersey-img').src = state.jerseys[state.jerseys.length - 1].img;
+            }
+
+            const yrList = document.getElementById('summary-year-achievements');
+            if (state.yearAchievements.length === 0) {
+                yrList.innerHTML = `<p class="text-slate-400 italic">No obtuviste logros ganados en este año.</p>`;
+            } else {
+                yrList.innerHTML = state.yearAchievements.map(a => `<div class="font-medium text-emerald-400">✓ ${a}</div>`).join('');
+            }
+
+            document.getElementById('modal-annual-summary').classList.remove('hidden');
+        }
+
+        function proceedNextStage() {
+            document.getElementById('modal-annual-summary').classList.add('hidden');
+            state.stageIdx++;
+            if (state.stageIdx >= STAGES.length) { showFinalScreen(); return; }
+            clearCanvas();
+            updateCenterSelectionUI();
+            showScreen('screen-step2');
+        }
+
+        function leavePastoral() {
+            document.getElementById('modal-annual-summary').classList.add('hidden');
+            showFinalScreen();
+        }
+
+        function showFinalScreen() {
+            showScreen('screen-final');
+            document.getElementById('final-card-name').innerText = state.playerName || "Animador Lasallista";
+            document.getElementById('final-card-ovr').innerText = state.stats.OVR;
+            document.getElementById('final-stat-lid').innerText = state.stats.LID;
+            document.getElementById('final-stat-emp').innerText = state.stats.EMP;
+            document.getElementById('final-stat-pre').innerText = state.stats.PRE;
+            document.getElementById('final-stat-cre').innerText = state.stats.CRE;
+            document.getElementById('final-stat-cg').innerText = state.stats.CG;
+            document.getElementById('final-stat-jerseys').innerText = state.jerseys.length;
+
+            document.getElementById('trophy-count-menciones').innerText = state.achievements.mencionHonorifica;
+            document.getElementById('trophy-count-distritales').innerText = state.achievements.eventosDistritales;
+            document.getElementById('trophy-count-torneos').innerText = state.achievements.torneosIntercentros;
+            document.getElementById('trophy-count-recuerdos').innerText = state.achievements.recuerdos;
+            document.getElementById('trophy-count-direcciones').innerText = state.achievements.direccionesEventos;
+
+            const gallery = document.getElementById('final-jersey-gallery');
+            gallery.innerHTML = "";
+            if(state.jerseys.length === 0) {
+                gallery.innerHTML = `<p class="text-xs text-slate-400 col-span-full">No diseñaste camisetas.</p>`;
+            } else {
+                state.jerseys.forEach((j, index) => {
+                    const card = document.createElement('div');
+                    card.className = "bg-slate-900 border border-slate-800 rounded-xl p-4 flex flex-col items-center text-center space-y-2";
+                    card.innerHTML = `
+                        <img src="${j.img}" alt="Camiseta" class="w-24 h-24 object-contain bg-slate-950 rounded-lg p-1 border border-slate-800">
+                        <div>
+                            <span class="text-xs text-emerald-400 font-bold uppercase block">${j.stage}</span>
+                            <span class="text-[11px] text-slate-300 block">Centro ${j.center}</span>
+                        </div>
+                    `;
+                    gallery.appendChild(card);
+                });
+            }
+        }
+
+        function downloadMasterPDF() {
+            let jerseysHtml = '';
+            state.jerseys.forEach((j) => {
+                jerseysHtml += `
+                    <div style="background: #0f172a; border: 1px solid #1e293b; border-radius: 12px; padding: 16px; text-align: center; display: inline-block; width: 200px; margin: 8px;">
+                        <img src="${j.img}" style="width: 100px; height: 100px; object-fit: contain; background: #020617; border-radius: 8px; margin: 0 auto 10px auto; display: block;" />
+                        <div style="font-size: 12px; color: #10b981; font-weight: bold; text-transform: uppercase;">${j.stage}</div>
+                        <div style="font-size: 10px; color: #94a3b8; font-weight: 500; margin-top: 2px;">Centro ${j.center}</div>
+                    </div>
+                `;
+            });
+
+            const win = window.open('', '_blank');
+            if (!win) return;
+            win.document.write(`
+                <!DOCTYPE html>
+                <html>
+                <head>
+                    <title>Reporte Carrera Pastoral - ${state.playerName}</title>
+                    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Teko:wght@500;600;700&display=swap" rel="stylesheet">
+                    <style>
+                        body { font-family: 'Inter', sans-serif; background-color: #020617; color: #f8fafc; padding: 40px; margin: 0; }
+                        .font-teko { font-family: 'Teko', sans-serif; }
+                        .glass-card {
+                            background: rgba(15, 23, 42, 0.95);
+                            border: 1px solid rgba(255, 255, 255, 0.1);
+                            border-radius: 1rem;
+                            padding: 32px;
+                            max-width: 900px;
+                            margin: 0 auto;
+                            box-shadow: 0 0 25px rgba(16, 185, 129, 0.2);
+                        }
+                    </style>
+                </head>
+                <body>
+                    <div class="glass-card space-y-8">
+                        <div style="text-align: center; border-bottom: 1px solid #1e293b; padding-bottom: 24px;">
+                            <span style="font-size: 48px; display: block; margin-bottom: 8px;">⭐</span>
+                            <h2 style="font-family: 'Teko', sans-serif; font-size: 36px; text-transform: uppercase; color: #34d399; margin: 0; letter-spacing: 1px;">Tarjeta de Animador Lasallista</h2>
+                            <p style="color: #94a3b8; font-size: 14px; margin-top: 4px;">Resumen completo de tu trayectoria, vestimenta y galardones conquistados.</p>
+                        </div>
+
+                        <div style="background: rgba(15, 23, 42, 0.9); border: 1px solid rgba(16, 185, 129, 0.3); border-radius: 16px; padding: 24px; display: flex; align-items: center; justify-content: space-between;">
+                            <div style="text-align: center; flex: 1; border-right: 1px solid #1e293b; padding-right: 24px;">
+                                <div style="width: 70px; height: 70px; background: rgba(16, 185, 129, 0.1); color: #34d399; border: 1px solid rgba(16, 185, 129, 0.4); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 12px auto; font-size: 30px;">👤</div>
+                                <h3 style="font-family: 'Teko', sans-serif; font-size: 24px; color: #ffffff; text-transform: uppercase; margin: 0;">${state.playerName || "Animador Lasallista"}</h3>
+                                <div style="display: inline-block; background: #064e3b; color: #34d399; border: 1px solid #047857; padding: 2px 10px; border-radius: 9999px; font-size: 11px; font-family: monospace; font-weight: bold; margin-top: 4px;">Leyenda de Pastoral</div>
+                                <div style="margin-top: 16px; background: #020617; padding: 12px; border-radius: 12px; border: 1px solid #1e293b;">
+                                    <span style="font-size: 10px; color: #94a3b8; text-transform: uppercase; display: block; font-weight: bold;">OVR Final</span>
+                                    <span style="font-family: 'Teko', sans-serif; font-size: 44px; color: #fbbf24; font-weight: bold; line-height: 1;">${state.stats.OVR}</span>
+                                </div>
+                            </div>
+
+                            <div style="flex: 2; padding-left: 24px; display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px;">
+                                <div style="background: #020617; padding: 12px; border-radius: 12px; border: 1px solid #1e293b; text-align: center;">
+                                    <span style="font-size: 10px; color: #94a3b8; text-transform: uppercase; font-weight: bold; display: block; margin-bottom: 4px;">LID</span>
+                                    <span style="font-family: 'Teko', sans-serif; font-size: 24px; color: #34d399; font-weight: bold;">${state.stats.LID}</span>
+                                </div>
+                                <div style="background: #020617; padding: 12px; border-radius: 12px; border: 1px solid #1e293b; text-align: center;">
+                                    <span style="font-size: 10px; color: #94a3b8; text-transform: uppercase; font-weight: bold; display: block; margin-bottom: 4px;">EMP</span>
+                                    <span style="font-family: 'Teko', sans-serif; font-size: 24px; color: #60a5fa; font-weight: bold;">${state.stats.EMP}</span>
+                                </div>
+                                <div style="background: #020617; padding: 12px; border-radius: 12px; border: 1px solid #1e293b; text-align: center;">
+                                    <span style="font-size: 10px; color: #94a3b8; text-transform: uppercase; font-weight: bold; display: block; margin-bottom: 4px;">PRE</span>
+                                    <span style="font-family: 'Teko', sans-serif; font-size: 24px; color: #fbbf24; font-weight: bold;">${state.stats.PRE}</span>
+                                </div>
+                                <div style="background: #020617; padding: 12px; border-radius: 12px; border: 1px solid #1e293b; text-align: center;">
+                                    <span style="font-size: 10px; color: #94a3b8; text-transform: uppercase; font-weight: bold; display: block; margin-bottom: 4px;">CRE</span>
+                                    <span style="font-family: 'Teko', sans-serif; font-size: 24px; color: #c084fc; font-weight: bold;">${state.stats.CRE}</span>
+                                </div>
+                                <div style="background: #020617; padding: 12px; border-radius: 12px; border: 1px solid #1e293b; text-align: center;">
+                                    <span style="font-size: 10px; color: #94a3b8; text-transform: uppercase; font-weight: bold; display: block; margin-bottom: 4px;">CG</span>
+                                    <span style="font-family: 'Teko', sans-serif; font-size: 24px; color: #fb7185; font-weight: bold;">${state.stats.CG}</span>
+                                </div>
+                                <div style="background: #020617; padding: 12px; border-radius: 12px; border: 1px solid #1e293b; text-align: center;">
+                                    <span style="font-size: 10px; color: #94a3b8; text-transform: uppercase; font-weight: bold; display: block; margin-bottom: 4px;">Camisetas</span>
+                                    <span style="font-family: 'Teko', sans-serif; font-size: 24px; color: #ffffff; font-weight: bold;">${state.jerseys.length}</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div>
+                            <h3 style="font-family: 'Teko', sans-serif; font-size: 24px; color: #fbbf24; text-transform: uppercase; margin-bottom: 16px;">🏆 Vitrina de Logros Obtenidos</h3>
+                            <div style="display: grid; grid-template-columns: repeat(5, 1fr); gap: 12px;">
+                                <div style="background: #0f172a; border: 1px solid #1e293b; border-radius: 12px; padding: 16px; text-align: center;">
+                                    <span style="font-size: 24px; display: block; margin-bottom: 4px;">🎖️</span>
+                                    <span style="font-size: 10px; color: #94a3b8; text-transform: uppercase; font-weight: bold; display: block;">Menciones</span>
+                                    <span style="font-family: 'Teko', sans-serif; font-size: 28px; color: #ffffff; font-weight: bold;">${state.achievements.mencionHonorifica}</span>
+                                </div>
+                                <div style="background: #0f172a; border: 1px solid #1e293b; border-radius: 12px; padding: 16px; text-align: center;">
+                                    <span style="font-size: 24px; display: block; margin-bottom: 4px;">✈️</span>
+                                    <span style="font-size: 10px; color: #94a3b8; text-transform: uppercase; font-weight: bold; display: block;">Distritales</span>
+                                    <span style="font-family: 'Teko', sans-serif; font-size: 28px; color: #60a5fa; font-weight: bold;">${state.achievements.eventosDistritales}</span>
+                                </div>
+                                <div style="background: #0f172a; border: 1px solid #1e293b; border-radius: 12px; padding: 16px; text-align: center;">
+                                    <span style="font-size: 24px; display: block; margin-bottom: 4px;">⚽</span>
+                                    <span style="font-size: 10px; color: #94a3b8; text-transform: uppercase; font-weight: bold; display: block;">Intercentros</span>
+                                    <span style="font-family: 'Teko', sans-serif; font-size: 28px; color: #fbbf24; font-weight: bold;">${state.achievements.torneosIntercentros}</span>
+                                </div>
+                                <div style="background: #0f172a; border: 1px solid #1e293b; border-radius: 12px; padding: 16px; text-align: center;">
+                                    <span style="font-size: 24px; display: block; margin-bottom: 4px;">🎨</span>
+                                    <span style="font-size: 10px; color: #94a3b8; text-transform: uppercase; font-weight: bold; display: block;">Recuerdos</span>
+                                    <span style="font-family: 'Teko', sans-serif; font-size: 28px; color: #c084fc; font-weight: bold;">${state.achievements.recuerdos}</span>
+                                </div>
+                                <div style="background: #0f172a; border: 1px solid #1e293b; border-radius: 12px; padding: 16px; text-align: center;">
+                                    <span style="font-size: 24px; display: block; margin-bottom: 4px;">🌟</span>
+                                    <span style="font-size: 10px; color: #94a3b8; text-transform: uppercase; font-weight: bold; display: block;">Direcciones</span>
+                                    <span style="font-family: 'Teko', sans-serif; font-size: 28px; color: #34d399; font-weight: bold;">${state.achievements.direccionesEventos}</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div>
+                            <h3 style="font-family: 'Teko', sans-serif; font-size: 24px; color: #34d399; text-transform: uppercase; margin-bottom: 16px;">👕 Galería de Indumentaria Diseñada</h3>
+                            <div>${jerseysHtml}</div>
+                        </div>
+                    </div>
+                </body>
+                </html>
+            `);
+            win.document.close();
+        }
+    </script>
+</body>
+</html>
